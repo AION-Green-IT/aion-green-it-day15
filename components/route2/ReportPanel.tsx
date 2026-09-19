@@ -2,7 +2,7 @@
 
 import { useHydrated } from "@/lib/store";
 import { scrollToAndFlash } from "@/lib/scrollToAndFlash";
-import { BLOCKS, ENGAGEMENT, EXPORT, FIRST_MEASURE_OPTIONS, HORIZONS, connectionKey } from "@/lib/route2";
+import { BLOCKS, CANDIDATE_MEASURES, ENGAGEMENT, EXPORT, FIRST_MEASURE_OPTIONS, HORIZONS, connectionKey } from "@/lib/route2";
 import { useRoute2, domId } from "./useRoute2";
 
 /** The date line. Client-only, so the static export stays stable. */
@@ -58,6 +58,9 @@ export function ReportPanel() {
           {r2.orphanedBlocks.length > 0 && (
             <p className="mt-1 text-micro text-danger">{r2.orphanedBlocks.length} block(s) still orphaned.</p>
           )}
+          {r2.orphanedBlocks.length === 0 && r2.groups.length > 1 && (
+            <p className="mt-1 text-micro text-danger">Blocks form {r2.groups.length} separate groups, not one architecture.</p>
+          )}
         </div>
 
         <Row label="1. Strategic relevance" value={r2.element1} onEdit={() => scrollToAndFlash(domId.element1, "ref")} />
@@ -106,13 +109,28 @@ export function ReportPanel() {
               Edit
             </button>
           </div>
-          <div className="mt-1 grid grid-cols-3 gap-1.5 text-center">
-            {HORIZONS.map((band) => (
-              <div key={band.id} className="rounded-lg border border-line bg-canvas p-1.5">
-                <p className="text-micro font-semibold text-ink">{Object.values(r2.horizons).filter((h) => h === band.id).length}</p>
-                <p className="text-[10px] text-ash">{band.label}</p>
-              </div>
-            ))}
+          <div className="mt-1 space-y-1.5">
+            {HORIZONS.map((band) => {
+              const inBand = CANDIDATE_MEASURES.filter((m) => r2.horizons[m.id] === band.id);
+              return (
+                <div key={band.id} className="rounded-lg border border-line bg-canvas p-1.5">
+                  <p className="text-micro font-semibold text-ink">
+                    {band.label} · {inBand.length}
+                  </p>
+                  {inBand.length === 0 ? (
+                    <p className="text-[11px] italic text-ash">none</p>
+                  ) : (
+                    <ul className="list-disc pl-4">
+                      {inBand.map((m) => (
+                        <li key={m.id} className="text-[11px] text-ink">
+                          {m.text}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

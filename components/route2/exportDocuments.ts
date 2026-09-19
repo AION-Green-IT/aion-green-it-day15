@@ -1,4 +1,4 @@
-import { BLOCKS, ENGAGEMENT, EXPORT, FIRST_MEASURE_OPTIONS, HORIZONS, connectionKey } from "@/lib/route2";
+import { BLOCKS, CANDIDATE_MEASURES, ENGAGEMENT, EXPORT, FIRST_MEASURE_OPTIONS, HORIZONS, connectionKey } from "@/lib/route2";
 import { CASE } from "@/lib/routes";
 import type { Route2State } from "./useRoute2";
 
@@ -21,8 +21,9 @@ export function buildProposalHtml(r2: Route2State): string {
   const guidingRows = r2.guidingDecisions.map((g) => `<li>${esc(g || "—")}</li>`).join("");
 
   const horizonRows = HORIZONS.map((band) => {
-    const count = Object.values(r2.horizons).filter((h) => h === band.id).length;
-    return `<tr><td>${esc(band.label)}</td><td class="nowrap">${count} of 6</td></tr>`;
+    const inBand = CANDIDATE_MEASURES.filter((m) => r2.horizons[m.id] === band.id);
+    const list = inBand.length ? `<ul>${inBand.map((m) => `<li>${esc(m.text)}</li>`).join("")}</ul>` : "<em>none</em>";
+    return `<tr><td class="nowrap">${esc(band.label)}</td><td>${list}</td><td class="nowrap">${inBand.length} of ${CANDIDATE_MEASURES.length}</td></tr>`;
   }).join("");
 
   return `<!doctype html>
@@ -73,6 +74,7 @@ export function buildProposalHtml(r2: Route2State): string {
   <h2>Decision architecture</h2>
   ${r2.connections.length ? `<ul>${connectionRows}</ul>` : `<p class="body-text"><em>No connections.</em></p>`}
   ${r2.orphanedBlocks.length ? `<p class="body-text">${r2.orphanedBlocks.length} block(s) orphaned.</p>` : ""}
+  <p class="body-text">${r2.groups.length === 1 ? "The six blocks form one connected architecture." : `The blocks form ${r2.groups.length} separate groups.`}</p>
 
   <h2>1. Strategic relevance</h2>
   <p class="body-text">${esc(r2.element1) || "<em>Not written.</em>"}</p>
@@ -100,7 +102,7 @@ export function buildProposalHtml(r2: Route2State): string {
   <table><tbody>${horizonRows}</tbody></table>
 
   <div class="summary">
-    <strong>${r2.connections.length} connections · ${6 - r2.orphanedBlocks.length} of 6 blocks connected · ${6 - r2.unclassifiedMeasures.length} of 6 measures classified.</strong>
+    <strong>${r2.connections.length} connections · ${6 - r2.orphanedBlocks.length} of 6 blocks connected · ${r2.groups.length} group${r2.groups.length === 1 ? "" : "s"} · ${6 - r2.unclassifiedMeasures.length} of 6 measures classified · checked ${r2.checkCount}×.</strong>
   </div>
 
   <footer>

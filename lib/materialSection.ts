@@ -34,14 +34,14 @@ export type MaterialSection<Id extends string = string> = {
 };
 
 /**
- * The lighter material unit: one compact card, 3–5 sentences, one live diagram
- * and one micro-interaction. Used where a day's design puts the learning inside
- * the task rather than in a long facilitator-led reading block — the teaching
- * is not thinner, it is denser.
+ * The lighter material unit: one compact card, one live diagram and one
+ * micro-interaction. Used where a day's design puts the learning inside the
+ * task rather than in a long facilitator-led reading block.
  *
- * `reasoning` carries the same weight it does on a full section: it is the rule
- * set the task's MaterialRefs chips point back at, and it is what makes the
- * card operational rather than merely informative.
+ * What is visible is only the standfirst, the diagram and the `definition`.
+ * Everything else sits behind one collapsed "Read more": `insight` (why it
+ * matters), `reasoning` (the decision rules the task's MaterialRefs chips point
+ * back at — what makes the card operational) and the sources.
  */
 export type MicroCard<Id extends string = string> = {
   id: Id;
@@ -52,11 +52,16 @@ export type MicroCard<Id extends string = string> = {
   title: string;
   /** One line under the title, before the diagram. */
   standfirst: string;
-  /** The whole written teaching for this card — 3 to 5 tight sentences. */
-  sentences: string[];
-  /** "How to decide when this comes up in the task" — 1–2 operational rules. */
+  /** Visible: 2–4 plain sentences a non-expert can repeat back. Every term and option the task uses is defined here. */
+  definition: string[];
+  /** Read more: why it matters — the causal mechanism, the figures. */
+  insight: string[];
+  /** Read more: "How to decide when this comes up in the task" — operational rules, incl. the one that rules out the plausible wrong answer. */
   reasoning: string[];
-  /** Small source tags under the card, never long paragraphs. */
-  sources: { label: string; detail?: string; url?: string }[];
+  /** Read more: real, separate, clickable sources. `note` explains why a source has no link. */
+  sources: { label: string; detail?: string; url?: string; note?: string }[];
+  /** What is behind Read more, so it is never a blind click. */
+  moreHint: string;
+  /** Minutes for the visible part only — Read more is optional depth and is not counted. */
   minutes: number;
 };

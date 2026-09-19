@@ -223,6 +223,65 @@ export const OPTION_LINES: OptionLine[] = [
 
 export const optionById = (id: OptionId): OptionLine => OPTION_LINES.find((o) => o.id === id)!;
 
+/**
+ * What each line involves, and one neutral fact per line for each dimension.
+ * Facts only — never a level, never a ranking, and never an evaluative word
+ * such as "strong" or "weak" (DEPTH-UPGRADE-PROMPT §4.1). They are what a
+ * learner reasons from when answering the seven questions; the level is still
+ * their own call.
+ */
+export const OPTION_FACTS: Record<OptionId, { involves: string[]; byDimension: Record<DimensionId, string> }> = {
+  a: {
+    involves: [
+      "Rolling out AI-based systems for efficiency and process optimisation in several areas.",
+      "Models, data pipelines and running infrastructure to build and operate.",
+      "FutureGrid has no shared way of judging AI use cases yet (case brief).",
+    ],
+    byDimension: {
+      leverage: "Each AI use case is deployed and evaluated on its own.",
+      innovation: "AI-based systems are planned for FutureGrid's operations but not yet deployed there.",
+      sustainability: "The energy a use case saves can be measured; the compute it needs can be measured too, but has not been counted yet.",
+      feasibility: "Off-the-shelf tools exist; it needs data engineers and compute capacity.",
+      risk: "If a use case fails or its compute cost grows, the spend is already committed.",
+      longTerm: "Models need retraining, monitoring and data upkeep to keep their benefit.",
+      controllability: "Models and platforms often come from external vendors with their own update cycles.",
+    },
+  },
+  b: {
+    involves: [
+      "Defining criteria for sustainability impact, resource requirements and strategic benefit.",
+      "Naming an owner, an approval path and a review cycle.",
+      "A first prioritisation of the initiatives that are already planned.",
+      "The output is a way of deciding, not a deployed technology.",
+    ],
+    byDimension: {
+      leverage: "Every later initiative would be assessed through the same criteria.",
+      innovation: "Assessment frameworks exist in other organisations; FutureGrid has none for innovation today.",
+      sustainability: "The framework itself saves no energy; it changes which initiatives go ahead.",
+      feasibility: "Needs management time and a named owner; there is no new technology to buy.",
+      risk: "If it fails, the cost is management time and a delayed first decision.",
+      longTerm: "The criteria stay in force for as long as reviews keep using them.",
+      controllability: "FutureGrid writes the criteria itself and can change them.",
+    },
+  },
+  c: {
+    involves: [
+      "Take-back of used devices, refurbishment and reuse.",
+      "Logistics, refurbishment capacity and supplier arrangements to set up.",
+      "A result that can be counted: devices returned, refurbished and redeployed.",
+    ],
+    byDimension: {
+      leverage: "Changes how devices are handled; other decisions keep their current process.",
+      innovation: "Take-back and refurbishment are established practice elsewhere; for FutureGrid it would be a new flow.",
+      sustainability: "Devices kept in use longer reduce new purchases and e-waste directly.",
+      feasibility: "Needs logistics, refurbishment capacity and supplier agreements to be arranged.",
+      risk: "If return volumes or refurbishment yields disappoint, the running costs remain.",
+      longTerm: "Take-back keeps running for as long as suppliers and return volumes stay in place.",
+      controllability: "Depends on refurbishment partners and supplier terms as well as internal policy.",
+    },
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Task framing
 // ---------------------------------------------------------------------------
@@ -279,10 +338,10 @@ export const RISK_INSTRUCTION =
 export const CHECK2_LABELS = {
   check: "Check my reasoning",
   recheck: "Check again",
-  holds: "This holds up — the standard objection to this pick is pre-empted.",
-  needsDimensions: "Not yet checkable — the justification doesn't reference two of the seven dimensions yet.",
-  wrongTier1: "Not quite defensible yet — here is a first clue.",
-  wrongTier2: "Still open — a sharper clue, since you've checked this before.",
+  holds: "✓ This holds up — the standard objection to this pick is pre-empted.",
+  needsDimensions: "✕ Not yet checkable — the justification doesn't reference two of the seven dimensions yet.",
+  wrongTier1: "✕ Doesn't hold up yet — here is a first clue.",
+  wrongTier2: "✕ Still doesn't hold up — a sharper clue, since you've checked this before.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -394,7 +453,7 @@ export const ANSWER_KEY_L2: AnswerKeyBlock = {
     },
   ],
   teachingNote:
-    "This is a genuinely open exercise, not a disguised single-answer one — the material explicitly withholds a model priority. A learner who picks A or C defensibly (naming the AI-momentum or steerability risk up front, per the clue engine) should be graded on the *quality of the defence*, not marked down for disagreeing with B. Use this key to answer a participant who pushes back: B is the safer, lower-risk, higher-control pick; A is the fastest visible win if the organisation already trusts its own AI use-case judgement; C is the strongest sustainability story if governance can be added quickly after launch.",
+    "This is a genuinely open exercise, not a disguised single-answer one — the material explicitly withholds a model priority. A learner who picks A or C defensibly (naming the AI-momentum or steerability risk up front, per the clue engine) should be graded on the *quality of the defence*, not marked down for disagreeing with B. Use this key to answer a participant who pushes back: B is the safer, lower-risk, higher-control pick; A is the fastest visible win if the organisation already trusts its own AI use-case judgement; C is the strongest sustainability story if governance can be added quickly after launch. The check judges only two things and never names a line as right: the justification cites at least two of the seven dimensions, and the standard objection to whichever line was picked is pre-empted (matched by keyword, per line). The 21 per-cell facts are neutral on purpose — a learner who rates from them, not from the technology category, is doing what C7 asks.",
 };
 
 /** Material this task draws on, for MaterialRefs chips. */

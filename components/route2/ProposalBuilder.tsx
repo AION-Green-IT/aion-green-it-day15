@@ -8,10 +8,16 @@ import { undoRedoKeyHandler } from "@/lib/undoShortcuts";
 import { AnswerKey } from "@/components/ui/AnswerKey";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
+import { ReadMore } from "@/components/ui/ReadMore";
 import { DragHandle } from "@/components/icons/LineIcons";
 import {
+  ANSWER_KEY_HORIZONS,
   ANSWER_KEY_L3,
+  BANDS_KEY,
   CANDIDATE_MEASURES,
+  CRITERIA,
+  FIRST_MEASURE_FACTS,
+  LOOP_STAGES,
   CHECK3_LABELS,
   ELEMENT_1,
   ELEMENT_3,
@@ -45,12 +51,23 @@ export function ProposalBuilder() {
   const setNote = useProgress((s) => s.setNote);
 
   const [checkResultSig, setCheckResultSig] = useState<string | null>(null);
-  const signature = `${r2.element3}|${r2.firstMeasure ?? ""}|${JSON.stringify(r2.horizons)}|${r2.checkCount}`;
+  // Everything the check judges. The verdict disappears the moment any of it changes.
+  const inputSig = JSON.stringify([
+    r2.groups.map((g) => g.join("+")),
+    r2.firstMeasure,
+    r2.element3,
+    r2.element4,
+    r2.element5Why,
+    r2.element6,
+    r2.horizons,
+    r2.elementsComplete,
+  ]);
+  const signature = `${inputSig}|${r2.checkCount}`;
   const result = checkResultSig === signature ? r2.lastCheck : null;
 
   const runCheck = () => {
     setNote(R2.checkCount, String(r2.checkCount + 1));
-    setCheckResultSig(`${r2.element3}|${r2.firstMeasure ?? ""}|${JSON.stringify(r2.horizons)}|${r2.checkCount + 1}`);
+    setCheckResultSig(`${inputSig}|${r2.checkCount + 1}`);
   };
 
   return (
@@ -77,6 +94,7 @@ export function ProposalBuilder() {
 
       <div>
         <p className="text-caption font-semibold text-ink">{GUIDING_DECISIONS_LABEL}</p>
+        <MaterialRefs refs={materialRefs(["governance", "horizons"])} />
         <div className="mt-1.5 grid gap-3 sm:grid-cols-3">
           {GUIDING_DECISION_FIELDS.map((f, i) => (
             <div key={f.id} id={domId.guiding(i)} className="scroll-mt-24">
@@ -102,6 +120,16 @@ export function ProposalBuilder() {
         </label>
         <p className="mt-0.5 text-micro text-ash">{ELEMENT_3.instruction}</p>
         <MaterialRefs refs={materialRefs(ELEMENT_3.material)} />
+        <ReadMore className="mt-1.5" label="Criteria key" hint="the four criteria: what each asks">
+          <ul className="space-y-1">
+            {CRITERIA.map((c) => (
+              <li key={c.id} className="text-micro text-ink">
+                <span className="font-semibold capitalize">{c.label} — </span>
+                {c.asks}
+              </li>
+            ))}
+          </ul>
+        </ReadMore>
         <textarea
           id="r2-element3-field"
           value={r2.element3}
@@ -132,6 +160,7 @@ export function ProposalBuilder() {
       <div id={domId.firstMeasure} className="scroll-mt-24 rounded-xl border border-line bg-canvas p-4">
         <p className="text-caption font-semibold text-ink">{FIRST_MEASURE_FIELD.label}</p>
         <p className="mt-0.5 text-micro text-ash">{FIRST_MEASURE_FIELD.instruction}</p>
+        <MaterialRefs refs={materialRefs(["architecture", "assessmentLogic"])} />
         <div className="mt-1.5 flex flex-wrap gap-2">
           {FIRST_MEASURE_OPTIONS.map((o) => {
             const on = r2.firstMeasure === o.id;
@@ -151,6 +180,15 @@ export function ProposalBuilder() {
             );
           })}
         </div>
+
+        <ul className="mt-2 space-y-0.5">
+          {FIRST_MEASURE_OPTIONS.map((o) => (
+            <li key={o.id} className="text-micro text-ash">
+              <span className="font-semibold text-ink">{o.label}: </span>
+              {FIRST_MEASURE_FACTS[o.id]}
+            </li>
+          ))}
+        </ul>
 
         <div id={domId.element5Why} className="mt-3 scroll-mt-24">
           <label htmlFor="r2-element5-field" className="block text-caption font-semibold text-ink">
@@ -175,6 +213,16 @@ export function ProposalBuilder() {
         </label>
         <p className="mt-0.5 text-micro text-ash">{ELEMENT_6.instruction}</p>
         <MaterialRefs refs={materialRefs(ELEMENT_6.material)} />
+        <ReadMore className="mt-1.5" label="Stage key" hint="the four loop stages: who plays each, what it asks">
+          <ul className="space-y-1">
+            {LOOP_STAGES.map((st) => (
+              <li key={st.id} className="text-micro text-ink">
+                <span className="font-semibold capitalize">{st.label} — {st.role}. </span>
+                It asks: {st.asks}
+              </li>
+            ))}
+          </ul>
+        </ReadMore>
         <textarea
           id="r2-element6-field"
           value={r2.element6}
@@ -215,16 +263,26 @@ export function ProposalBuilder() {
           </button>
           {r2.checkCount > 0 && <span className="text-micro text-ash">checked {r2.checkCount}×</span>}
         </div>
-        {result?.holds && <p className="reveal-in text-caption font-semibold text-accent">{CHECK3_LABELS.holds}</p>}
-        {result && !result.holds && (
-          <div className="reveal-in space-y-1">
-            <p className="text-caption text-ink">{result.tier === "sharp" ? CHECK3_LABELS.wrongTier2 : CHECK3_LABELS.wrongTier1}</p>
-            <p className="rounded-lg border border-accent/25 bg-accentSoft px-2.5 py-1.5 text-caption text-ink">{result.clue}</p>
+        {result && (
+          <div className="reveal-in space-y-1.5" aria-live="polite">
+            <p className={result.holds ? "text-caption font-semibold text-accent" : "text-caption font-semibold text-danger"}>
+              {result.holds ? "✓ " + CHECK3_LABELS.holds : "✕ " + (result.tier === "sharp" ? CHECK3_LABELS.wrongTier2 : CHECK3_LABELS.wrongTier1)}
+            </p>
+            <ul className="space-y-1">
+              {result.rows.map((row) => (
+                <li key={row.area} className="text-caption text-ink">
+                  <span className={row.ok ? "font-semibold text-accent" : "font-semibold text-danger"}>{row.ok ? "✓" : "✕"} </span>
+                  <span className="font-semibold">{row.label}</span>
+                  {row.clue ? <span className="mt-0.5 block rounded-lg border border-line bg-paper px-2.5 py-1.5 text-caption text-ink">{row.clue}</span> : null}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
 
       <AnswerKey block={ANSWER_KEY_L3} />
+      <AnswerKey block={ANSWER_KEY_HORIZONS} />
     </div>
   );
 }
@@ -298,9 +356,19 @@ function HorizonClassifier() {
         <div>
           <p className="text-caption font-semibold text-ink">Classify NovaCircular's candidate measures</p>
           <p className="mt-0.5 text-micro text-ash">Drag each measure into Short / Medium / Structural (D4) — or tap one, then tap a band.</p>
+          <MaterialRefs refs={materialRefs(["horizons"])} />
         </div>
         <UndoRedoControls onUndo={handleUndo} onRedo={handleRedo} canUndo={past.length > 0} canRedo={future.length > 0} />
       </div>
+
+      <ul className="grid gap-1.5 sm:grid-cols-3">
+        {BANDS_KEY.map((b) => (
+          <li key={b.id} className="rounded-lg border border-line bg-paper p-2 text-micro text-ink">
+            <span className="font-semibold">{b.label}: </span>
+            {b.produces}. <span className="text-ash">Ask: {b.ask}</span>
+          </li>
+        ))}
+      </ul>
 
       <div
         onDragOver={(e) => {
@@ -330,7 +398,18 @@ function HorizonClassifier() {
                 tabIndex={0}
                 onDragStart={(e) => startDrag(e, m.id)}
                 onDragEnd={endDrag}
-                onClick={() => setSelectedId((cur) => (cur === m.id ? null : m.id))}
+                aria-pressed={selectedId === m.id}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedId((cur) => (cur === m.id ? null : m.id));
+                  }
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedId((cur) => (cur === m.id ? null : m.id));
+                }}
                 className={clsx(
                   "flex max-w-xs cursor-grab items-start gap-1.5 rounded-lg border p-2 text-left transition-colors duration-150",
                   draggingId === m.id && "is-dragging",
@@ -374,9 +453,22 @@ function HorizonClassifier() {
                       key={m.id}
                       id={domId.horizonItem(m.id)}
                       draggable
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={selectedId === m.id}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedId((cur) => (cur === m.id ? null : m.id));
+                        }
+                      }}
                       onDragStart={(e) => startDrag(e, m.id)}
                       onDragEnd={endDrag}
-                      onClick={() => setSelectedId((cur) => (cur === m.id ? null : m.id))}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedId((cur) => (cur === m.id ? null : m.id));
+                      }}
                       className={clsx(
                         "cursor-grab rounded-lg border p-1.5 text-[11px] text-ink transition-colors duration-150",
                         draggingId === m.id && "is-dragging",

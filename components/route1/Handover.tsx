@@ -29,7 +29,7 @@ export function Handover() {
           const width = total > 0 ? (count / total) * 100 : 0;
           if (width === 0) return null;
           const tone =
-            zone.id === "opportunity" ? "bg-accent" : zone.id === "risk" ? "bg-danger" : "bg-ash";
+            zone.id === "opportunity" ? "bg-ink" : zone.id === "risk" ? "bg-ash" : "bg-line";
           return <div key={zone.id} className={tone} style={{ width: `${width}%` }} title={`${zone.name}: ${count}`} />;
         })}
       </div>

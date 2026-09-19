@@ -8,6 +8,8 @@ import { undoRedoKeyHandler } from "@/lib/undoShortcuts";
 import { AnswerKey } from "@/components/ui/AnswerKey";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
+import { LiveReading, useLastChange } from "@/components/ui/LiveReading";
+import { scrollToAndFlash } from "@/lib/scrollToAndFlash";
 import { RadarChart, SeriesSwatch, type RadarAxis, type RadarSeries } from "@/components/ui/RadarChart";
 import { Icon } from "@/components/icons/LineIcons";
 import {
@@ -16,6 +18,9 @@ import {
   DIMENSIONS,
   FOLLOWUP_FIELDS,
   JUSTIFICATION_FIELD,
+  LEVEL_LABEL,
+  LEVEL_VALUE,
+  OPTION_FACTS,
   OPTION_LINES,
   PHASE1_INSTRUCTION,
   PHASE2_INTRO,
@@ -100,8 +105,40 @@ export function PartTwo() {
     style: o.radarStyle,
   }));
 
+  const strength = (dim: DimensionId, level: Level | null) => (level ? (dim === "risk" ? 4 - LEVEL_VALUE[level] : LEVEL_VALUE[level]) : 0);
+  const points = OPTION_LINES.map((o) => {
+    const sc = r1.optionAssessment(o.id).scores;
+    return { o, total: DIMENSIONS.reduce((n, d) => n + strength(d.id, sc[d.id]), 0), rated: r1.optionAssessment(o.id).scoredCount };
+  });
+  const allRated = points.every((x) => x.rated === DIMENSIONS.length);
+  // The dimension the three lines differ on most, by strength spread.
+  const spread = DIMENSIONS.map((d) => {
+    const vals = OPTION_LINES.map((o) => strength(d.id, r1.optionAssessment(o.id).scores[d.id]));
+    return { d, gap: Math.max(...vals) - Math.min(...vals) };
+  }).sort((a, b) => b.gap - a.gap);
+  const scoreKey = JSON.stringify(currentMap());
+  const changedScore = useLastChange(
+    scoreKey,
+    (prevKey, nextKey) => {
+      const prev = JSON.parse(prevKey) as Record<string, string | null>;
+      const next = JSON.parse(nextKey) as Record<string, string | null>;
+      const keys = Object.keys(next).filter((k) => prev[k] !== next[k]);
+      if (keys.length !== 1) return keys.length > 1 ? "Several scores changed at once (undo, redo or a fill). The points above are up to date." : null;
+      const [oid, did] = keys[0].split(":") as [OptionId, DimensionId];
+      const dim = DIMENSIONS.find((d) => d.id === did)!;
+      const nl = next[keys[0]] as Level | null;
+      const pl = prev[keys[0]] as Level | null;
+      const claim = nl ? dim.question.options.find((o) => o.level === nl)?.label : null;
+      return `Line ${optionLetter(oid)} · ${dim.name}: ${pl ? LEVEL_LABEL[pl] : "not rated"} → ${nl ? LEVEL_LABEL[nl] : "not rated"}.${claim ? ` The claim you are now making: “${claim}.”` : ""} Only score this from what the line itself involves, not from how the technology category feels.`;
+    },
+    "Rate a dimension and the radar and points update.",
+  );
+
   const runCheck = () => {
-    if (!r1.priority) return;
+    if (!r1.priority) {
+      scrollToAndFlash(domId.priority);
+      return;
+    }
     setNote(R1.checkCount2, String(r1.checkCount2 + 1));
     setCheckResultSig(`${r1.priority}|${r1.justification}|${r1.checkCount2 + 1}`);
   };
@@ -164,6 +201,18 @@ export function PartTwo() {
             title="Options A, B and C compared across the seven assessment dimensions"
             className="mt-2 max-w-md"
           />
+          <div className="mt-3">
+            <LiveReading
+              whyLabel="Where the lines differ"
+              numbers={<>Strength points (Risk counted in reverse): {points.map((x) => `${x.o.letter} ${x.total}`).join(" · ")} — of 21 each</>}
+              why={
+                allRated
+                  ? `They differ most on ${spread[0].d.name}${spread[1].gap > 0 ? ` and ${spread[1].d.name}` : ""}. Points are only a summary: a line with one strong axis is not automatically weaker than an even one (C7), so use the shape, not the total.`
+                  : `Rate all seven dimensions on every line (${points.reduce((n, x) => n + x.rated, 0)} of ${OPTION_LINES.length * DIMENSIONS.length} done) and this reading will say where the lines differ.`
+              }
+              changed={changedScore}
+            />
+          </div>
         </div>
       </div>
 
@@ -258,8 +307,7 @@ export function PartTwo() {
             <button
               type="button"
               onClick={runCheck}
-              disabled={!r1.priority}
-              className="rounded-lg border border-line bg-paper px-3 py-1.5 text-caption font-semibold text-ink transition-colors duration-150 hover:border-ash disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-line bg-paper px-3 py-1.5 text-caption font-semibold text-ink transition-colors duration-150 hover:border-ash"
             >
               {r1.checkCount2 > 0 ? CHECK2_LABELS.recheck : CHECK2_LABELS.check}
             </button>
@@ -269,14 +317,14 @@ export function PartTwo() {
           {result?.holds && <p className="reveal-in text-caption font-semibold text-accent">{CHECK2_LABELS.holds}</p>}
           {result && !result.holds && (
             <div className="reveal-in space-y-1">
-              <p className="text-caption text-ink">
+              <p className="text-caption font-semibold text-danger">
                 {result.reason === "dimensions"
                   ? CHECK2_LABELS.needsDimensions
                   : result.tier === "sharp"
                     ? CHECK2_LABELS.wrongTier2
                     : CHECK2_LABELS.wrongTier1}
               </p>
-              <p className="rounded-lg border border-accent/25 bg-accentSoft px-2.5 py-1.5 text-caption text-ink">{result.clue}</p>
+              <p className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-caption text-ink">{result.clue}</p>
             </div>
           )}
         </div>
@@ -311,6 +359,18 @@ function OptionCard({
         </div>
       </div>
 
+      <div className="mt-3 rounded-lg border border-line bg-canvas p-2.5">
+        <p className="text-micro font-semibold uppercase tracking-wide text-ash">What it involves</p>
+        <ul className="mt-1 space-y-0.5">
+          {OPTION_FACTS[option.id].involves.map((f) => (
+            <li key={f} className="flex gap-2 text-micro text-ink">
+              <span className="mt-[5px] h-1 w-1 shrink-0 rounded-full bg-ash" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {DIMENSIONS.map((dim) => {
           const level = assessment.scores[dim.id];
@@ -318,6 +378,10 @@ function OptionCard({
             <div key={dim.id} id={domId.optionScore(option.id, dim.id)} className="scroll-mt-24 rounded-lg border border-line bg-canvas p-2.5">
               <p className="text-micro font-semibold text-ink">{dim.name}</p>
               <p className="mt-0.5 text-micro text-ash">{dim.question.label}</p>
+              <p className="mt-1 text-micro text-ink">
+                <span className="font-semibold">Fact: </span>
+                {OPTION_FACTS[option.id].byDimension[dim.id]}
+              </p>
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {dim.question.options.map((o) => {
                   const on = level === o.level;
@@ -338,6 +402,12 @@ function OptionCard({
                   );
                 })}
               </div>
+              {level && (
+                <p className="mt-1 text-micro text-ash">
+                  <span className="font-semibold text-ink">{LEVEL_LABEL[level]} means: </span>
+                  {dim.question.options.find((o) => o.level === level)?.label}
+                </p>
+              )}
             </div>
           );
         })}
@@ -345,3 +415,5 @@ function OptionCard({
     </div>
   );
 }
+
+const optionLetter = (id: OptionId): string => OPTION_LINES.find((o) => o.id === id)!.letter;

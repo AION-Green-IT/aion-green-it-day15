@@ -69,9 +69,9 @@ export const LOAD_FIELD = {
   instruction:
     "Judge the net effect across the lifecycle, not the headline claim. \"Both\" is a real answer when benefit and burden are each material.",
   options: [
-    { id: "reduces" as const, label: "Reduces net resource use" },
-    { id: "adds" as const, label: "Adds compute / data load" },
-    { id: "both" as const, label: "Both — genuinely unclear" },
+    { id: "reduces" as const, label: "Reduces net resource use", means: "The measurable effect is a reduction, even after counting any new load it brings." },
+    { id: "adds" as const, label: "Adds compute / data load", means: "The main measurable effect is more compute, data or hardware, with no clear saving to set against it." },
+    { id: "both" as const, label: "Both — genuinely unclear", means: "A measurable benefit and a measurable burden are each material. Use it only when there are two real effects." },
   ],
   material: ["novelty", "aiLoad"] as MaterialSectionId[],
 };
@@ -157,6 +157,19 @@ export function resolveZone(load: LoadAnswer, structure: StructureAnswer): ZoneI
   return "mixed";
 }
 
+/**
+ * One sentence saying why a pair of answers gives its zone. Shown live on each
+ * initiative card and in C5's playable rule, so the two never drift apart.
+ */
+export function zoneReason(load: LoadAnswer, structure: StructureAnswer, zone: ZoneId): string {
+  const s = answerLabel(structure).toLowerCase();
+  if (zone === "opportunity") return `Your first answer says it reduces net resource use, and your second (${s}) is on the right side. Both point the right way, so it lands in Sustainable opportunity.`;
+  if (zone === "risk") return `Your first answer says it adds load, and your second (${s}) is on the wrong side. Both point the wrong way, so it lands in Sustainability risk.`;
+  if (load === "both") return `"Both, unclear" is already a disagreement inside the first signal, so it lands in Mixed whichever way the structure (${s}) points.`;
+  if (load === "reduces") return `The saving is real, but the structure behind it (${s}) is on the wrong side. The two signals disagree, so it lands in Mixed.`;
+  return `The structure (${s}) is sound, but it adds load. The two signals disagree, so it lands in Mixed.`;
+}
+
 // ---------------------------------------------------------------------------
 // The seven assessment lenses — taught in C4, used verbatim here
 // ---------------------------------------------------------------------------
@@ -170,7 +183,19 @@ export type LensId =
   | "governance"
   | "investment";
 
-export type Lens = { id: LensId; name: string; icon: IconKey; definition: string };
+export type Lens = {
+  id: LensId;
+  name: string;
+  icon: IconKey;
+  /** What the lens covers. */
+  definition: string;
+  /** The question it asks — the one to put to an initiative. */
+  ask: string;
+  /** When it is the decisive lens (rather than merely the topic). */
+  useWhen: string;
+  /** A short case in which this lens names the decisive issue. Never one of the six task initiatives. */
+  example: string;
+};
 
 export const LENSES: Lens[] = [
   {
@@ -178,44 +203,86 @@ export const LENSES: Lens[] = [
     name: "Innovation",
     icon: "blueprint",
     definition: "Novelty versus real effect — is anything actually reduced, or does it only look advanced?",
+    ask: "What does this reduce in absolute terms, beyond being new?",
+    useWhen: "The decisive issue is that the case rests on being modern, with no named effect behind it.",
+    example: "A team proposes a quantum-ready network refresh because it sounds advanced; no saving is named. The decisive issue is novelty versus real effect.",
   },
   {
     id: "aiUse",
     name: "AI use",
     icon: "chip",
     definition: "Benefit versus load — does what the application delivers justify the compute and data it consumes?",
+    ask: "What does the AI deliver, and what does it run on to deliver it?",
+    useWhen: "The decisive issue is a measurable AI benefit weighed against a real compute and data burden.",
+    example: "A help-desk chatbot answers tickets faster, but every query runs a large model around the clock. The decisive issue is benefit weighed against load.",
   },
   {
     id: "resources",
     name: "Resource requirements",
     icon: "gauge",
     definition: "The energy, compute, storage and data footprint the initiative adds to the organisation.",
+    ask: "How much energy, compute, storage and data does this add?",
+    useWhen: "The decisive issue is the size of the footprint itself, not whether it pays for itself.",
+    example: "A plan to keep every log for ten years triples storage. The decisive issue is the footprint it adds.",
   },
   {
     id: "circular",
     name: "Circular economy",
     icon: "recycleLoop",
     definition: "Loop versus linear — are devices and components kept in use, or pushed through to disposal?",
+    ask: "Does this keep devices and components in use, or move them to disposal?",
+    useWhen: "The decisive issue is whether hardware stays in the loop — take-back, reuse, repair, refurbishment.",
+    example: "A hospital leases its bedside monitors and hands them back to the supplier for refurbishment after five years. The decisive issue is loop versus linear.",
   },
   {
     id: "businessModel",
     name: "Business model",
     icon: "supplier",
     definition: "How value is created and charged — product sale, as-a-service, take-back, or a new revenue line.",
+    ask: "How is value created and paid for, and does that reward keeping things in use?",
+    useWhen: "The decisive issue is how the offer is sold or charged, which decides who benefits from durability.",
+    example: "A software firm moves from one-off licences to a subscription that includes updates. The decisive issue is how value is charged.",
   },
   {
     id: "governance",
     name: "Governance",
     icon: "gavel",
     definition: "The criteria, approval and oversight a decision runs through, and whether its output can be audited.",
+    ask: "Who decides, by what criteria, and can anyone check afterwards?",
+    useWhen: "The decisive issue is that nobody owns, approves or audits the decision.",
+    example: "Three pilots were approved by three sponsors and never compared. The decisive issue is who decides, by what criteria.",
   },
   {
     id: "investment",
     name: "Investment logic",
     icon: "coins",
     definition: "Cost, return and payback when the numbers are still uncertain — what is committed against what is expected.",
+    ask: "What is committed, what is expected back, and how sure is that?",
+    useWhen: "The decisive issue is the money case: cost, payback or follow-on burden under uncertainty.",
+    example: "A scheme needs a large upfront purchase and its payback depends on a price nobody can guarantee. The decisive issue is the money case.",
   },
 ];
+
+/**
+ * C4's practice case — deliberately NOT one of the six task initiatives (a
+ * practice case must not reveal a task answer). The learner picks the lens they
+ * think names the decisive issue; each pick gets a consequence, never "wrong".
+ */
+export const LENS_PRACTICE = {
+  title: "Practice case — a regional retailer",
+  body: "A regional retailer plans to replace its recommendation engine with a much larger AI model. The vendor demo is impressive. Nobody has said how much more compute the larger model needs, and the plan has no owner yet.",
+  question: "Which lens names the decisive issue? Pick one.",
+  /** What each pick means for this case. One is the decisive lens; two more are defensible; the rest are the topic, not the issue. */
+  outcome: {
+    aiUse: { fit: "decisive" as const, text: "This names the decisive issue: a larger model brings an unmeasured compute burden against a benefit nobody has quantified. It is a benefit-versus-load question." },
+    resources: { fit: "defensible" as const, text: "Defensible — the added footprint is real. It names the cost side of the same trade-off, but not the missing benefit." },
+    governance: { fit: "defensible" as const, text: "Defensible — no owner and no criteria is a real gap. But fixing governance would not by itself tell you whether the model is worth its load." },
+    innovation: { fit: "topic" as const, text: "This describes the subject (a new model) more than the issue. The gap is not whether it is new, but what it costs against what it delivers." },
+    circular: { fit: "topic" as const, text: "Nothing in this case is about devices staying in use or returning to the loop, so this lens does not explain the verdict." },
+    businessModel: { fit: "topic" as const, text: "How the retailer charges customers is not the issue here; the open questions are compute and ownership." },
+    investment: { fit: "topic" as const, text: "The money case matters eventually, but the case has no cost figures yet — the burden has not even been named, so this is one step too early." },
+  },
+} as const;
 
 export const lensById = (id: LensId): Lens => LENSES.find((l) => l.id === id)!;
 export const lensLabel = (id: LensId | null): string =>
@@ -694,9 +761,9 @@ export const WORK_ASSIGNMENT: string[] = [
 export const CHECK_LABELS = {
   check: "Check my reasoning",
   recheck: "Check again",
-  holds: "This diagnosis holds up.",
-  wrongTier1: "This one does not hold up yet — here is a first clue.",
-  wrongTier2: "Still not quite — a sharper clue, since you have checked this one before.",
+  holds: "✓ This diagnosis holds up.",
+  wrongTier1: "✕ This one does not hold up yet — here is a first clue.",
+  wrongTier2: "✕ Still does not hold up — a sharper clue, since you have checked this one before.",
   unanswered: "Answer both questions first, then this one can be checked.",
   summary: (holds: number, checked: number) =>
     `${holds} of ${checked} diagnosed initiative${checked === 1 ? "" : "s"} ${holds === 1 ? "holds" : "hold"} up.`,

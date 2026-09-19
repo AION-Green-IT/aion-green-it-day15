@@ -8,6 +8,7 @@ import {
   GUIDING_DECISION_FIELDS,
   HORIZONS,
   R2,
+  blockGroups,
   checkProposal,
   connectionKey,
   type BlockId,
@@ -61,6 +62,8 @@ export function useRoute2() {
   const isConnected = (a: BlockId, b: BlockId) => !!checks[R2.connection(connectionKey(a, b))];
   const degree = (id: BlockId) => connections.filter(([a, b]) => a === id || b === id).length;
   const orphanedBlocks = BLOCKS.filter((b) => degree(b.id) === 0);
+  /** Connected groups: one group means one architecture, several mean islands. */
+  const groups = blockGroups(connections);
 
   // -- Stage 2: first-measure + proposal elements ------------------------------
   const rawFirstMeasure = choices[R2.firstMeasure];
@@ -80,11 +83,19 @@ export function useRoute2() {
   }
   const unclassifiedMeasures = CANDIDATE_MEASURES.filter((m) => !horizons[m.id]);
 
+  const elementsComplete =
+    !!element1 && guidingDecisions.every((g) => g.length > 0) && !!element3 && !!element4 && !!element5Why && !!element6 && !!element7;
+
   const checkCount = Number(notes[R2.checkCount] ?? "0") || 0;
   const lastCheck: Check3Result = checkProposal({
-    decisionLogicText: element3,
+    groups,
     firstMeasure,
+    element3,
+    element4,
+    element5Why,
+    element6,
     horizons,
+    elementsComplete,
     checkCountAfter: checkCount,
   });
 
@@ -97,6 +108,9 @@ export function useRoute2() {
       id: domId.canvas,
       label: `${orphanedBlocks.length} canvas block${orphanedBlocks.length === 1 ? "" : "s"} orphaned`,
     });
+  }
+  if (orphanedBlocks.length === 0 && groups.length > 1) {
+    missing.push({ id: domId.canvas, label: `The canvas splits into ${groups.length} separate groups — connect them into one architecture` });
   }
   if (!firstMeasure) missing.push({ id: domId.firstMeasure, label: "First-measure not selected" });
   if (!element1) missing.push({ id: domId.element1, label: "Element 1 (strategic relevance) empty" });
@@ -112,9 +126,6 @@ export function useRoute2() {
     missing.push({ id: domId.horizonBoard, label: `${unclassifiedMeasures.length} measure${unclassifiedMeasures.length === 1 ? "" : "s"} unclassified` });
   }
 
-  const elementsComplete =
-    !!element1 && guidingDecisions.every((g) => g.length > 0) && !!element3 && !!element4 && !!element5Why && !!element6 && !!element7;
-
   return {
     hydrated,
     name,
@@ -124,6 +135,7 @@ export function useRoute2() {
     isConnected,
     degree,
     orphanedBlocks,
+    groups,
 
     // Stage 2
     firstMeasure,

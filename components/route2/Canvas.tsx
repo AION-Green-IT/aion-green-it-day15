@@ -7,7 +7,10 @@ import { createPlacementHistory, type PlacementMap } from "@/lib/usePlacementHis
 import { undoRedoKeyHandler } from "@/lib/undoShortcuts";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { Icon } from "@/components/icons/LineIcons";
-import { BLOCKS, CANVAS_INSTRUCTION, R2, connectionKey, type BlockId } from "@/lib/route2";
+import { MaterialRefs } from "@/components/ui/MaterialRefs";
+import { LiveReading, useLastChange } from "@/components/ui/LiveReading";
+import { AnswerKey } from "@/components/ui/AnswerKey";
+import { ANSWER_KEY_CANVAS, BLOCKS, CANVAS_INSTRUCTION, R2, blockById, blockGroups, connectionKey, materialRefs, type BlockId } from "@/lib/route2";
 import { useRoute2, domId } from "./useRoute2";
 
 const VIEW_W = 360;
@@ -47,6 +50,30 @@ export function Canvas() {
   const [selectedId, setSelectedId] = useState<BlockId | null>(null);
   const [draggingId, setDraggingId] = useState<BlockId | null>(null);
   const [hoverId, setHoverId] = useState<BlockId | null>(null);
+
+  const connKey = r2.connections.map(([a, b]) => connectionKey(a, b)).sort().join(",");
+  const changed = useLastChange(
+    connKey,
+    (prev, next) => {
+      const before = prev ? prev.split(",") : [];
+      const after = next ? next.split(",") : [];
+      const added = after.filter((k) => !before.includes(k));
+      const removed = before.filter((k) => !after.includes(k));
+      const groupsOf = (keys: string[]) => blockGroups(keys.map((k) => k.split(":") as [BlockId, BlockId])).length;
+      const g0 = groupsOf(before);
+      const g1 = groupsOf(after);
+      const label = (k: string) => k.split(":").map((id) => blockById(id as BlockId).label).join(" ↔ ");
+      if (added.length === 1 && removed.length === 0) {
+        return `${label(added[0])} connected. Separate groups: ${g0} → ${g1}. ${g1 < g0 ? "Two clusters just became one — that is what routing everything through the same logic looks like." : "It strengthens a group that was already joined; it does not yet join anything new."}`;
+      }
+      if (removed.length === 1 && added.length === 0) {
+        return `${label(removed[0])} removed. Separate groups: ${g0} → ${g1}. ${g1 > g0 ? "That link was the only thing joining two clusters." : "The blocks are still joined some other way."}`;
+      }
+      return `Several links changed at once (undo or redo). Separate groups: ${g0} → ${g1}.`;
+    },
+    "Draw a link between two blocks to see what it joins.",
+  );
+  const selectedBlock = selectedId ? blockById(selectedId) : null;
 
   const currentMap = (): PlacementMap => {
     const map: PlacementMap = {};
@@ -116,6 +143,7 @@ export function Canvas() {
         <UndoRedoControls onUndo={handleUndo} onRedo={handleRedo} canUndo={past.length > 0} canRedo={future.length > 0} />
       </div>
       <p className="max-w-prose text-caption text-ash">{CANVAS_INSTRUCTION}</p>
+      <MaterialRefs refs={materialRefs(["architecture"])} />
 
       <div className="relative w-full rounded-2xl border border-line bg-canvas p-2" style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}>
         <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="pointer-events-none absolute inset-0 h-full w-full">
@@ -168,13 +196,35 @@ export function Canvas() {
         })}
       </div>
 
-      {r2.orphanedBlocks.length > 0 && (
-        <p className="rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-caption text-ink">
-          {r2.orphanedBlocks.length === 1
-            ? "One block isn't connected to anything — a disconnected initiative is exactly the rebound risk from the material (D1)."
-            : `${r2.orphanedBlocks.length} blocks aren't connected to anything — a disconnected initiative is exactly the rebound risk from the material (D1).`}
-        </p>
-      )}
+      <p className="min-h-[2.5rem] rounded-lg border border-line bg-paper px-3 py-2 text-caption text-ink">
+        {selectedBlock ? (
+          <>
+            <span className="font-semibold">{selectedBlock.label}: </span>
+            {selectedBlock.note} Tap another block to link them.
+          </>
+        ) : (
+          <span className="text-ash">Tap a block to read what it is, then tap a second to link them.</span>
+        )}
+      </p>
+
+      <LiveReading
+        tone={r2.groups.length === 1 ? "good" : "neutral"}
+        whyLabel="Where the canvas stands"
+        numbers={
+          <>
+            {r2.connections.length} connection{r2.connections.length === 1 ? "" : "s"} · {r2.groups.length} separate group{r2.groups.length === 1 ? "" : "s"} · {r2.orphanedBlocks.length} orphaned
+          </>
+        }
+        why={
+          r2.groups.length === 1
+            ? "All six blocks form one architecture: an initiative entering through any block meets the same logic, which is what D1 asks for."
+            : r2.orphanedBlocks.length > 0
+              ? `${r2.orphanedBlocks.length === 1 ? "One block isn't" : `${r2.orphanedBlocks.length} blocks aren't`} connected to anything (${r2.orphanedBlocks.map((b) => b.label).join(", ")}) — a disconnected block is exactly the scattered-initiative pattern from D1.`
+              : `Every block has a link, but they form ${r2.groups.length} separate groups. A framework that routes only some blocks is not integrated (D1) — it has to route the whole portfolio.`
+        }
+        changed={changed}
+      />
+      <AnswerKey block={ANSWER_KEY_CANVAS} />
     </div>
   );
 }

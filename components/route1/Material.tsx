@@ -10,17 +10,15 @@ import {
   SECTION_ORDER,
   materialAnchorId,
 } from "@/lib/route1";
-import {
-  AiBalanceScale,
-  AttractiveButWeakTrophy,
-  AttractiveVsViable,
-  CircularVsLinear,
-  DimensionsRadarPreview,
-  EnablerVsPointSolution,
-  LensWheel,
-  NoveltyVsImpactFork,
-  UncertaintyFork,
-} from "./MaterialDiagrams";
+import { ReboundCalculator } from "./diagrams/ReboundCalculator";
+import { AiLoadCalculator } from "./diagrams/AiLoadCalculator";
+import { CircularFleet } from "./diagrams/CircularFleet";
+import { LensKey } from "./diagrams/LensKey";
+import { VerdictRule } from "./diagrams/VerdictRule";
+import { WaitingCost } from "./diagrams/WaitingCost";
+import { PracticeRadar } from "./diagrams/PracticeRadar";
+import { EnablerReach } from "./diagrams/EnablerReach";
+import { WeaknessLab } from "./diagrams/WeaknessLab";
 
 export const MATERIAL_TRACK_ID = "r1-material";
 
@@ -45,42 +43,42 @@ export function Material() {
     <div id={MATERIAL_TRACK_ID} className="space-y-8">
       <MiniNav items={navItems} trackId={MATERIAL_TRACK_ID} />
 
-      <SectionHeading kicker={MATERIAL_INTRO.kicker} title={MATERIAL_INTRO.title} intro={MATERIAL_INTRO.intro} />
+      <SectionHeading kicker={MATERIAL_INTRO.kicker} title={MATERIAL_INTRO.title} intro={MATERIAL_INTRO.intro} more={MATERIAL_INTRO.more} />
 
-      <MicroCard card={c1} anchorId={materialAnchorId("novelty")}>
-        <NoveltyVsImpactFork />
+      <MicroCard card={c1} total={MATERIAL.length} anchorId={materialAnchorId("novelty")}>
+        <ReboundCalculator />
       </MicroCard>
 
-      <MicroCard card={c2} anchorId={materialAnchorId("aiLoad")}>
-        <AiBalanceScale />
+      <MicroCard card={c2} total={MATERIAL.length} anchorId={materialAnchorId("aiLoad")}>
+        <AiLoadCalculator />
       </MicroCard>
 
-      <MicroCard card={c3} anchorId={materialAnchorId("circular")}>
-        <CircularVsLinear />
+      <MicroCard card={c3} total={MATERIAL.length} anchorId={materialAnchorId("circular")}>
+        <CircularFleet />
       </MicroCard>
 
-      <MicroCard card={c4} anchorId={materialAnchorId("lenses")}>
-        <LensWheel />
+      <MicroCard card={c4} total={MATERIAL.length} anchorId={materialAnchorId("lenses")}>
+        <LensKey />
       </MicroCard>
 
-      <MicroCard card={c5} anchorId={materialAnchorId("viability")}>
-        <AttractiveVsViable />
+      <MicroCard card={c5} total={MATERIAL.length} anchorId={materialAnchorId("viability")}>
+        <VerdictRule />
       </MicroCard>
 
-      <MicroCard card={c6} anchorId={materialAnchorId("uncertainty")}>
-        <UncertaintyFork />
+      <MicroCard card={c6} total={MATERIAL.length} anchorId={materialAnchorId("uncertainty")}>
+        <WaitingCost />
       </MicroCard>
 
-      <MicroCard card={c7} anchorId={materialAnchorId("dimensions")}>
-        <DimensionsRadarPreview />
+      <MicroCard card={c7} total={MATERIAL.length} anchorId={materialAnchorId("dimensions")}>
+        <PracticeRadar />
       </MicroCard>
 
-      <MicroCard card={c8} anchorId={materialAnchorId("enablerVsPoint")}>
-        <EnablerVsPointSolution />
+      <MicroCard card={c8} total={MATERIAL.length} anchorId={materialAnchorId("enablerVsPoint")}>
+        <EnablerReach />
       </MicroCard>
 
-      <MicroCard card={c9} anchorId={materialAnchorId("attractiveWeak")}>
-        <AttractiveButWeakTrophy />
+      <MicroCard card={c9} total={MATERIAL.length} anchorId={materialAnchorId("attractiveWeak")}>
+        <WeaknessLab />
       </MicroCard>
     </div>
   );

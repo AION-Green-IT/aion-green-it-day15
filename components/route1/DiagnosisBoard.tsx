@@ -8,6 +8,7 @@ import { undoRedoKeyHandler } from "@/lib/undoShortcuts";
 import { AnswerKey } from "@/components/ui/AnswerKey";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
+import { ReadMore } from "@/components/ui/ReadMore";
 import { Icon } from "@/components/icons/LineIcons";
 import {
   CHECK_LABELS,
@@ -20,6 +21,7 @@ import {
   ZONES,
   materialRefs,
   zoneById,
+  zoneReason,
   type MaterialSectionId,
   type ZoneId,
 } from "@/lib/route1";
@@ -244,16 +246,15 @@ export function DiagnosisBoard() {
   );
 }
 
-/** Zone colouring. Mixed stays neutral: `warn` is reserved for mentor answer keys (CLAUDE.md §7). */
-function zoneTone(id: ZoneId) {
-  switch (id) {
-    case "opportunity":
-      return { lane: "border-accent/30 bg-accentSoft/40", chip: "border-accent/30 bg-accentSoft/60", text: "text-accent" };
-    case "risk":
-      return { lane: "border-danger/30 bg-danger/5", chip: "border-danger/30 bg-danger/5", text: "text-danger" };
-    default:
-      return { lane: "border-line bg-mist", chip: "border-line bg-mist", text: "text-ink" };
-  }
+/**
+ * Every zone is neutral. A zone is the consequence of the learner's own two
+ * answers, not a verdict on them, so it must never read as "correct" (green) or
+ * "wrong" (red) before Check has run — colour is reserved for a fresh verdict,
+ * and `warn` for mentor answer keys (CLAUDE.md §7). The zone is told apart by
+ * its name and icon.
+ */
+function zoneTone(_id: ZoneId) {
+  return { lane: "border-line bg-mist", chip: "border-line bg-mist", text: "text-ink" };
 }
 
 // ---------------------------------------------------------------------------
@@ -318,6 +319,14 @@ function InitiativeCard({
             />
           ))}
         </div>
+        <ul className="mt-1.5 space-y-0.5">
+          {LOAD_FIELD.options.map((o) => (
+            <li key={o.id} className="text-micro text-ash">
+              <span className="font-semibold text-ink">{o.label}: </span>
+              {o.means}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Q2 — whichever question is most diagnostic here */}
@@ -342,12 +351,32 @@ function InitiativeCard({
         </p>
       )}
 
+      {card.diagnosed && card.zone && card.load && card.structure && (
+        <div aria-live="polite" className="reveal-in mt-3 rounded-lg border border-line bg-canvas p-2.5">
+          <p className="text-caption text-ink">
+            <span className="font-semibold">Why this zone: </span>
+            {zoneReason(card.load, card.structure, card.zone)}
+          </p>
+          <p className="mt-1 text-micro text-ash">This is what your two answers give — it is not a verdict on them. Use Check to find out whether they hold up.</p>
+        </div>
+      )}
+
       {card.diagnosed && (
         <>
           {/* The lens */}
           <div id={domId.initLens(initiative.id)} className="mt-4 scroll-mt-24 border-t border-line pt-3">
             <p className="text-caption font-semibold text-ink">{LENS_FIELD.label}</p>
             <p className="mt-0.5 text-micro text-ash">{LENS_FIELD.instruction}</p>
+            <ReadMore className="mt-1.5" label="Lens key" hint="what each lens asks and when to use it">
+              <ul className="space-y-1.5">
+                {LENSES.map((lens) => (
+                  <li key={lens.id} className="text-micro text-ink">
+                    <span className="font-semibold">{lens.name} — </span>
+                    {lens.definition} <span className="text-ash">It asks: {lens.ask}</span> <span className="text-ash">Use it when: {lens.useWhen}</span>
+                  </li>
+                ))}
+              </ul>
+            </ReadMore>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {LENSES.map((lens) => {
                 const on = card.lens === lens.id;
@@ -396,10 +425,10 @@ function InitiativeCard({
             <p className="reveal-in text-caption font-semibold text-accent">{CHECK_LABELS.holds}</p>
           ) : (
             <div className="reveal-in space-y-1">
-              <p className="text-caption text-ink">
+              <p className="text-caption font-semibold text-danger">
                 {result.tier === "sharp" ? CHECK_LABELS.wrongTier2 : CHECK_LABELS.wrongTier1}
               </p>
-              <p className="rounded-lg border border-accent/25 bg-accentSoft px-2.5 py-1.5 text-caption text-ink">
+              <p className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-caption text-ink">
                 {result.clue}
               </p>
             </div>
