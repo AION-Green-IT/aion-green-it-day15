@@ -774,7 +774,6 @@ export const WORK_ASSIGNMENT: string[] = [
   "Write a one-line rationale for each initiative, naming both the benefit and the burden.",
   "Use \"Check my reasoning\" whenever you want a clue — it tells you whether a diagnosis holds, never what the answer is.",
   "Finish with the closing question: which one is attractive now but structurally weak?",
-  "Want more? Optional: name the lens for any initiative, diagnose the other three initiatives, or go on to Level 2 and decide which line of measures to prioritise.",
 ];
 
 export const CHECK_LABELS = {

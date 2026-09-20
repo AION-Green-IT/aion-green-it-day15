@@ -65,30 +65,7 @@ export function ReportPanel() {
 
         <Row label="1. Strategic relevance" value={r2.element1} onEdit={() => scrollToAndFlash(domId.element1, "ref")} />
 
-        {r2.guidingDecisions.some((g) => g) && (
-          <div>
-            <div className="flex items-center justify-between">
-              <p className="text-micro font-semibold uppercase tracking-wide text-ash">2. Guiding decisions</p>
-              <button type="button" onClick={() => scrollToAndFlash(domId.guiding(0), "ref")} className="text-micro font-semibold text-accent underline decoration-dotted underline-offset-2 hover:text-accentHi">
-                Edit
-              </button>
-            </div>
-            {r2.guidingDecisions.every((g) => !g) ? (
-              <p className="mt-1 text-micro italic text-ash">Not written yet.</p>
-            ) : (
-              <ol className="mt-1 list-decimal space-y-0.5 pl-4">
-                {r2.guidingDecisions.map((g, i) => (
-                  <li key={i} className="text-micro text-ink">
-                    {g || <span className="italic text-ash">—</span>}
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-        )}
-
         <Row label="3. Decision logic" value={r2.element3} onEdit={() => scrollToAndFlash(domId.element3, "ref")} />
-        {r2.element4 && <Row label="4. Central trade-offs" value={r2.element4} onEdit={() => scrollToAndFlash(domId.element4, "ref")} />}
 
         <div>
           <div className="flex items-center justify-between">
@@ -101,46 +78,17 @@ export function ReportPanel() {
           {r2.element5Why && <p className="mt-0.5 text-micro italic text-ink">&ldquo;{r2.element5Why}&rdquo;</p>}
         </div>
 
-        {r2.element6 && <Row label="6. Roles & governance" value={r2.element6} onEdit={() => scrollToAndFlash(domId.element6, "ref")} />}
-        {r2.element7 && <Row label="7. Decide now" value={r2.element7} onEdit={() => scrollToAndFlash(domId.element7, "ref")} />}
-
-        {CANDIDATE_MEASURES.some((m) => r2.horizons[m.id]) && (
-          <div>
-            <div className="flex items-center justify-between">
-              <p className="text-micro font-semibold uppercase tracking-wide text-ash">Time-horizon split</p>
-              <button type="button" onClick={() => scrollToAndFlash(domId.horizonBoard, "ref")} className="text-micro font-semibold text-accent underline decoration-dotted underline-offset-2 hover:text-accentHi">
-                Edit
-              </button>
-            </div>
-            <div className="mt-1 space-y-1.5">
-              {HORIZONS.map((band) => {
-                const inBand = CANDIDATE_MEASURES.filter((m) => r2.horizons[m.id] === band.id);
-                return (
-                  <div key={band.id} className="rounded-lg border border-line bg-canvas p-1.5">
-                    <p className="text-micro font-semibold text-ink">
-                      {band.label} · {inBand.length}
-                    </p>
-                    {inBand.length === 0 ? (
-                      <p className="text-[11px] italic text-ash">none</p>
-                    ) : (
-                      <ul className="list-disc pl-4">
-                        {inBand.map((m) => (
-                          <li key={m.id} className="text-[11px] text-ink">
-                            {m.text}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {!r2.optionalTouched && (
+        {r2.optionalTouched && (
           <p className="border-t border-line pt-3 text-micro italic text-ash">
-            Optional extension (elements 2, 4, 6, 7 and the time-horizon classifier) — not started. Open it below the proposal if you want it in your export.
+            Also saved and included in the PDF: {[
+              r2.guidingDecisions.some((g) => g) ? "the guiding decisions" : null,
+              r2.element4 ? "the trade-offs" : null,
+              r2.element6 ? "roles and governance" : null,
+              r2.element7 ? "the decision to take now" : null,
+              CANDIDATE_MEASURES.some((m) => r2.horizons[m.id]) ? "the time-horizon split" : null,
+            ]
+              .filter(Boolean)
+              .join(", ")}.
           </p>
         )}
       </div>

@@ -173,10 +173,9 @@ export function ProposalBuilder() {
       {/* Optional — the rest of the seven-element proposal and the horizon classifier, kept in full */}
       <OptionalBlock
         id="r2-extend"
-        title="Extend your proposal"
-        hint="Elements 2 (three guiding decisions), 4 (central trade-offs), 6 (roles and governance), 7 (the decision to take now) and the time-horizon classifier. Uses the optional cards D3 and D4. Anything you write is added to your export."
+        title="extend the proposal (elements 2, 4, 6, 7 and the horizon classifier)"
         minutes={15}
-        openWhen={r2.optionalTouched}
+        hasData={r2.optionalTouched}
       >
       <div>
         <p className="text-caption font-semibold text-ink">{GUIDING_DECISIONS_LABEL}</p>

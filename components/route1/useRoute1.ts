@@ -176,7 +176,9 @@ export function useRoute1() {
   const coreCompleteCount = coreCards.filter((c) => c.complete).length;
   /** The learner has started anything in the optional part of Part 1 — it then stays open. */
   const extraTouched =
-    extraCards.some((c) => !!c.load || !!c.structure || !!c.lens || !!c.rationale) || closingAll.length > 0;
+    extraCards.some((c) => !!c.load || !!c.structure || !!c.lens || !!c.rationale) ||
+    cards.some((c) => !!c.lens) ||
+    closingAll.length > 0;
   /** A lens is optional on every card; a card with one keeps its lens block open. */
   const task1Complete = coreCards.every((c) => c.complete) && !!closing;
 

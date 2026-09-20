@@ -59,7 +59,7 @@ export const ENGAGEMENT = {
   mandate:
     "Build the decision architecture that channels every future AI, circular, or investment decision through the same criteria and governance — then turn it into a proposal management can act on, including the one decision that cannot wait for complete data.",
   deliverable:
-    "You leave with one document: a NovaCircular Technologies Management Proposal — a connected decision architecture plus the core of the proposal (why it matters, the decision logic and the first move). Anything optional you also complete is added to it.",
+    "You leave with one document: a NovaCircular Technologies Management Proposal — a connected decision architecture plus the core of the proposal (why it matters, the decision logic and the first move).",
 } as const;
 
 export const NAME_FIELD = {

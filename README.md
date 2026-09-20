@@ -17,7 +17,7 @@ is inside and roughly how many minutes it adds. Nothing optional is ever require
 | | Core (always shown, required) | Optional (kept in full, behind a button) |
 |---|---|---|
 | **Route 1 material** | C1 novelty · C2 AI load · C3 circular vs linear · C5 verdict rule — 4 × 15 = 60 min | C4 lenses · C6 uncertainty · C7 dimensions · C8 enabler · C9 attractive-but-weak (+11 min) |
-| **Route 1 task** | Diagnose **three** initiatives (1, 3, 6: one per zone, incl. the sharpest pair) — both questions + a rationale each — and one closing question (~15 min) | Name the lens · diagnose initiatives 2, 4, 5 · the original two-initiative closing question · the whole Level 2 Decide task with its handover (+25 min) |
+| **Route 1 task** | Diagnose **three** initiatives (1, 3, 6: one per zone, incl. the sharpest pair) — both questions + a rationale each — and one closing question (~15 min) | One small group: name the lenses · diagnose initiatives 2, 4, 5 · the two-initiative closing question (+15 min) · and, separately, the whole Level 2 Decide task with its handover (+15 min) |
 | **Route 2 material** | D1 architecture (22) · D2 criteria (23) + the CircularMind worked example — 45 min | D3 governance loop · D4 time horizons (+7 min) |
 | **Route 2 tasks** | Task 1: connect the six blocks into one architecture · Task 2: elements 1, 3 and 5 with the first-measure pick (~10 + 10 min) | Elements 2, 4, 6, 7 and the horizon classifier (+15 min) |
 
@@ -27,11 +27,7 @@ element 3 → D2 · first measure → D1, D2 and the CircularMind example. The o
 cards (lens → C4; Level 2 → C6–C9 and C7; elements 6/7 and the classifier → D3/D4), so nothing required
 ever leans on something optional.
 
-**How optional behaves.** Closed by default; the open state persists across reloads. A block **stays open on
-its own once the learner has written anything in it**, so answers are never hidden. A `MaterialRefs` chip that
-points into an optional card opens the block, then the card's Read more, then scrolls. Optional work appears
-in the live report and the PDF only if it was done, labelled "(optional)"; the export filename contract is
-unchanged. Mentor fill still fills everything, core and optional, in one click.
+**How optional behaves.** Fully hidden, and deliberately hard to drift into: the only trace is one small text link per group ("+ Optional: … about N more min"). The open state lives in memory only — it is never saved and is never forced open by existing answers, so every page load starts with all optional work hidden. If the learner already has saved answers inside, the link says "saved answers included" (they still go into the PDF); it does not open the block for them. Optional initiatives, lenses and the Level 2 task never appear in the zone lanes, the export bar or the missing list; the live report shows only a one-line "also saved and included in the PDF" summary. A `MaterialRefs` chip that points into an optional card opens the block, then the card's Read more, then scrolls. The PDF includes optional work only if it was done, labelled "(optional)". Mentor fill still fills everything, core and optional, in one click.
 
 **Minutes.** Core minutes follow Day 14 (facilitator-led time, which includes discussing the interactive and
 the Read more). Optional cards keep their short self-paced times.

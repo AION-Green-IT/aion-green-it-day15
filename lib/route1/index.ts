@@ -70,7 +70,7 @@ export const R1_KEY_PREFIXES = ["r1:t1:", "r1:t2:", "r1:c4:", "r1:c7:"];
 export const PAGE_INTRO = {
   tag: "ROUTE 1 — ASSESS & DECIDE",
   title: "Innovations for the Sustainable IT of Tomorrow",
-  body: "Module 11. New technology is not automatically sustainable technology: AI can cut energy and add compute at the same time, a circular model can be the right direction and still be hard to run, and an initiative can be genuinely exciting while reducing nothing at all. Four core cards below give you the vocabulary and the decision rules. Then you use them on FutureGrid Technologies: diagnose three planned initiatives one by one. If you want more, five extra cards, three more initiatives and a Level 2 decision about whole lines of measures are there behind optional buttons.",
+  body: "Module 11. New technology is not automatically sustainable technology: AI can cut energy and add compute at the same time, a circular model can be the right direction and still be hard to run, and an initiative can be genuinely exciting while reducing nothing at all. Four cards below give you the vocabulary and the decision rules. Then you use them on FutureGrid Technologies: diagnose three planned initiatives one by one.",
 } as const;
 
 /** Stated once, above the task, and never re-introduced mid-page. */
@@ -81,9 +81,9 @@ export const ENGAGEMENT = {
   brief:
     "FutureGrid Technologies is planning six innovation initiatives at once — AI, data services, procurement, hardware and a new customer offering. Management is enthusiastic about all of them, and no integrated way of judging them exists yet.",
   mandate:
-    "Core: assess, not approve — say which of three initiatives are genuine sustainability opportunities, which are risks, and which are mixed. Optional: diagnose the other three, then step up a level — with only one line of measures fundable first, prioritise and defend a choice under incomplete data.",
+    "Assess, not approve — say which of three initiatives are genuine sustainability opportunities, which are risks, and which are mixed.",
   deliverable:
-    "You leave with one document: a FutureGrid Technologies Innovation Diagnosis & Priority. It always holds the initiative-level diagnosis; anything optional you also complete is added to it.",
+    "You leave with one document: a FutureGrid Technologies Innovation Diagnosis.",
 } as const;
 
 export const NAME_FIELD = {

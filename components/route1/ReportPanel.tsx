@@ -36,7 +36,7 @@ export function ReportPanel() {
       <div className="mt-4 space-y-4">
         <p className="text-micro font-semibold uppercase tracking-wide text-accent">Part 1 — Diagnose</p>
         {ZONES.map((zone) => {
-          const inZone = r1.byZone(zone.id);
+          const inZone = r1.byZone(zone.id).filter((c) => c.core);
           return (
             <div key={zone.id} className="border-t border-line pt-3 first:border-t-0 first:pt-0">
               <p className="text-micro font-semibold uppercase tracking-wide text-ash">
@@ -99,67 +99,23 @@ export function ReportPanel() {
           )}
         </div>
 
-        {r1.closingAll && (
-          <div className="border-t border-line pt-3">
-            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Across all six (optional)</p>
-            <p className="mt-1 text-caption italic text-ink">&ldquo;{r1.closingAll}&rdquo;</p>
-          </div>
-        )}
 
-        {r1.part2Touched ? (
-          <>
-        <p className="border-t border-line pt-3 text-micro font-semibold uppercase tracking-wide text-accent">
-          Part 2 — Decide (optional)
-        </p>
 
-        {OPTION_LINES.map((opt) => {
-          const a = r1.optionAssessment(opt.id);
+        {(() => {
+          const extras: string[] = [];
+          const extraDiagnosed = r1.extraCards.filter((c) => c.diagnosed).length;
+          if (extraDiagnosed > 0) extras.push(`${extraDiagnosed} more initiative${extraDiagnosed === 1 ? "" : "s"}`);
+          const lenses = r1.cards.filter((c) => c.lens).length;
+          if (lenses > 0) extras.push(`${lenses} lens${lenses === 1 ? "" : "es"}`);
+          if (r1.closingAll) extras.push("the two-initiative closing answer");
+          if (r1.part2Touched) extras.push("the Level 2 decision");
+          if (extras.length === 0) return null;
           return (
-            <div key={opt.id} className="rounded-lg border border-line bg-canvas p-2.5">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-caption font-semibold text-ink">
-                  Line {opt.letter} — {opt.title}
-                </p>
-                <span
-                  className={clsx(
-                    "shrink-0 rounded-full px-1.5 py-0.5 text-micro font-semibold",
-                    a.fullyScored ? "bg-accentSoft text-accent" : "border border-line text-ash",
-                  )}
-                >
-                  {a.scoredCount}/7 rated
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => scrollToAndFlash(domId.optionCard(opt.id), "ref")}
-                className="mt-1.5 text-micro font-semibold text-accent underline decoration-dotted underline-offset-2 hover:text-accentHi"
-              >
-                Edit this entry
-              </button>
-            </div>
+            <p className="border-t border-line pt-3 text-micro italic text-ash">
+              Also saved and included in the PDF: {extras.join(", ")}.
+            </p>
           );
-        })}
-
-        <div className="rounded-lg border border-line bg-canvas p-2.5">
-          <Row label="Priority" value={r1.priority ? `Line ${optionById(r1.priority).letter} — ${optionById(r1.priority).title}` : "— not picked"} />
-          {r1.justification && (
-            <div className="mt-1 pt-0.5">
-              <dt className="text-micro text-ash">Justification</dt>
-              <dd className="mt-0.5 text-micro italic text-ink">&ldquo;{r1.justification}&rdquo;</dd>
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={() => scrollToAndFlash(domId.priority, "ref")}
-            className="mt-1.5 text-micro font-semibold text-accent underline decoration-dotted underline-offset-2 hover:text-accentHi"
-          >
-            Edit this entry
-          </button>
-        </div>
-          </>
-        ) : (
-          <p className="border-t border-line pt-3 text-micro italic text-ash">Optional Level 2 (Decide) — not started. Open it below the task if you want it in your export.</p>
-        )}
+        })()}
       </div>
     </div>
   );

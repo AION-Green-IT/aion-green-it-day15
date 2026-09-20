@@ -62,7 +62,6 @@ export function ExportBar() {
           <span>
             <span className="tabular-nums font-semibold text-ink">{[r2.element1, r2.element3, r2.element5Why].filter(Boolean).length}</span> / 3 core elements written
           </span>
-          {r2.optionalTouched && <span className="text-ash">· optional extension included</span>}
           {r2.missing.length > 0 && (
             <>
               <span className="text-ash">

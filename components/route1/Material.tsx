@@ -71,7 +71,6 @@ export function Material() {
       <OptionalBlock
         id="r1-more-material"
         title={MATERIAL_INTRO.optionalTitle}
-        hint={MATERIAL_INTRO.optionalHint}
         minutes={optionalMinutes}
         opensFor={OPTIONAL_SECTIONS.map(materialAnchorId)}
       >

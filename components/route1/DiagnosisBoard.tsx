@@ -171,7 +171,7 @@ export function DiagnosisBoard() {
           {ZONES.map((z) => (
             <div key={z.id} className={clsx("rounded-xl border px-3 py-2", zoneTone(z.id).chip)}>
               <p className={clsx("text-micro font-semibold uppercase tracking-wide", zoneTone(z.id).text)}>{z.name}</p>
-              <p className="text-readout tabular-nums text-ink">{r1.byZone(z.id).length}</p>
+              <p className="text-readout tabular-nums text-ink">{r1.byZone(z.id).filter((c) => c.core).length}</p>
             </div>
           ))}
         </div>
@@ -207,38 +207,27 @@ export function DiagnosisBoard() {
         )}
       </div>
 
-      {/* Optional — the other three initiatives, same questions, same zones */}
-      <OptionalBlock
-        id={domId.optMoreInitiatives}
-        title="Diagnose the other three initiatives"
-        hint="The same two questions on initiatives 2, 4 and 5. They land in the same zones below and are added to your export."
-        minutes={10}
-        openWhen={r1.extraTouched}
-      >
-        {r1.extraCards.filter((c) => !c.diagnosed).length === 0 ? (
-          <p className="text-caption text-ash">All three optional initiatives are diagnosed and sitting in the zones below.</p>
-        ) : (
-          <div className="space-y-3">
-            {r1.extraCards
-              .filter((c) => !c.diagnosed)
-              .map((c) => (
-                <InitiativeCard
-                  key={c.initiative.id}
-                  card={c}
-                  result={resultFor(c)}
-                  onAnswer={answer}
-                  onRationale={(v) => setNote(R1.rationale(c.initiative.id), v)}
-                />
-              ))}
-          </div>
-        )}
+      {/* Optional, hidden by default — name the lenses, diagnose the other three initiatives */}
+      <OptionalBlock id={domId.optMoreInitiatives} title="name the lenses and diagnose three more initiatives" minutes={15} hasData={r1.extraTouched}>
+        <LensRows cards={r1.cards.filter((c) => c.diagnosed)} onAnswer={answer} />
+        <div className="space-y-3">
+          {r1.extraCards.map((c) => (
+            <InitiativeCard
+              key={c.initiative.id}
+              card={c}
+              result={resultFor(c)}
+              onAnswer={answer}
+              onRationale={(v) => setNote(R1.rationale(c.initiative.id), v)}
+            />
+          ))}
+        </div>
         <OptionalClosing />
       </OptionalBlock>
 
       {/* The three zones */}
       <div className="space-y-4">
         {ZONES.map((zone) => {
-          const inZone = r1.byZone(zone.id);
+          const inZone = r1.byZone(zone.id).filter((c) => c.core);
           const tone = zoneTone(zone.id);
           return (
             <div key={zone.id} className={clsx("rounded-2xl border p-4", tone.lane)}>
@@ -399,53 +388,6 @@ function InitiativeCard({
 
       {card.diagnosed && (
         <>
-          {/* The lens — optional (it needs C4, an optional card) */}
-          <OptionalBlock
-            id={`r1-lens-${initiative.id}`}
-            title="Name the lens"
-            hint="Which of the seven lenses names the decisive issue? Uses optional card C4. Added to your export if you do."
-            openWhen={!!card.lens}
-            className="mt-4"
-          >
-          <div id={domId.initLens(initiative.id)} className="scroll-mt-24">
-            <p className="text-caption font-semibold text-ink">{LENS_FIELD.label}</p>
-            <p className="mt-0.5 text-micro text-ash">{LENS_FIELD.instruction}</p>
-            <MaterialRefs refs={materialRefs(LENS_FIELD.material)} />
-            <ReadMore className="mt-1.5" label="Lens key" hint="what each lens asks and when to use it">
-              <ul className="space-y-1.5">
-                {LENSES.map((lens) => (
-                  <li key={lens.id} className="text-micro text-ink">
-                    <span className="font-semibold">{lens.name} — </span>
-                    {lens.definition} <span className="text-ash">It asks: {lens.ask}</span> <span className="text-ash">Use it when: {lens.useWhen}</span>
-                  </li>
-                ))}
-              </ul>
-            </ReadMore>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {LENSES.map((lens) => {
-                const on = card.lens === lens.id;
-                return (
-                  <button
-                    key={lens.id}
-                    type="button"
-                    title={lens.definition}
-                    onClick={() => onAnswer(initiative.id, "lens", lens.id)}
-                    aria-pressed={on}
-                    className={clsx(
-                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro font-semibold transition-colors duration-150",
-                      on ? "border-accent bg-accentSoft text-accent" : "border-line text-ash hover:border-ash",
-                    )}
-                  >
-                    <Icon name={lens.icon} className="h-3.5 w-3.5" />
-                    {lens.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          </OptionalBlock>
-
           {/* The rationale */}
           <div id={domId.initWhy(initiative.id)} className="mt-3 scroll-mt-24">
             <label htmlFor={`r1-why-${initiative.id}`} className="block text-caption font-semibold text-ink">
@@ -524,6 +466,67 @@ function OptionalClosing() {
         rows={3}
         className="mt-2 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-caption text-ink"
       />
+    </div>
+  );
+}
+
+/** Optional: one lens per diagnosed initiative, with the key at the point of use. Needs the optional card C4. */
+function LensRows({
+  cards,
+  onAnswer,
+}: {
+  cards: InitiativeState[];
+  onAnswer: (initiativeId: string, field: "load" | "structure" | "lens", value: string) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-caption font-semibold text-ink">{LENS_FIELD.label}</p>
+        <p className="mt-0.5 text-micro text-ash">{LENS_FIELD.instruction} Pick a lens for any initiative you have diagnosed.</p>
+        <MaterialRefs refs={materialRefs(LENS_FIELD.material)} />
+        <ReadMore className="mt-1.5" label="Lens key" hint="what each lens asks and when to use it">
+          <ul className="space-y-1.5">
+            {LENSES.map((lens) => (
+              <li key={lens.id} className="text-micro text-ink">
+                <span className="font-semibold">{lens.name} — </span>
+                {lens.definition} <span className="text-ash">It asks: {lens.ask}</span> <span className="text-ash">Use it when: {lens.useWhen}</span>
+              </li>
+            ))}
+          </ul>
+        </ReadMore>
+      </div>
+      {cards.length === 0 ? (
+        <p className="text-micro italic text-ash">Diagnose an initiative first, then pick its lens here.</p>
+      ) : (
+        cards.map((card) => (
+          <div key={card.initiative.id} id={domId.initLens(card.initiative.id)} className="scroll-mt-24 rounded-xl border border-line bg-paper p-3">
+            <p className="text-caption font-semibold text-ink">
+              {card.initiative.n}. {card.initiative.short}
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {LENSES.map((lens) => {
+                const on = card.lens === lens.id;
+                return (
+                  <button
+                    key={lens.id}
+                    type="button"
+                    title={lens.definition}
+                    onClick={() => onAnswer(card.initiative.id, "lens", lens.id)}
+                    aria-pressed={on}
+                    className={clsx(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro font-semibold transition-colors duration-150",
+                      on ? "border-accent bg-accentSoft text-accent" : "border-line text-ash hover:border-ash",
+                    )}
+                  >
+                    <Icon name={lens.icon} className="h-3.5 w-3.5" />
+                    {lens.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

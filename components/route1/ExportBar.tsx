@@ -60,14 +60,7 @@ export function ExportBar() {
           <span>
             Core: <span className="tabular-nums font-semibold text-ink">{r1.coreCompleteCount}</span> / {r1.coreCount} written up
           </span>
-          {r1.part2Touched && (
-            <>
-              <span className="text-ash">·</span>
-              <span>
-                Level 2 (optional): <span className="tabular-nums font-semibold text-ink">{r1.options.filter((o) => o.fullyScored).length}</span> / 3 assessed
-              </span>
-            </>
-          )}
+
           {r1.missing.length > 0 && (
             <>
               <span className="text-ash">

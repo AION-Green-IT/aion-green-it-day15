@@ -79,13 +79,7 @@ export function Task() {
           </div>
 
           {/* Optional — Level 2, Decide */}
-          <OptionalBlock
-            id="r1-level-2"
-            title="Level 2 — decide which line of measures to prioritise"
-            hint="Assess three lines on seven dimensions, read the radar, pick one and defend it. Uses the optional cards C6–C9 and C7. Adds a Part 2 to your export."
-            minutes={TASK2_FRAMING.minutes}
-            openWhen={r1.part2Touched}
-          >
+          <OptionalBlock id="r1-level-2" title="Level 2, decide which line of measures to prioritise" minutes={TASK2_FRAMING.minutes} hasData={r1.part2Touched}>
             <Handover />
 
             <div id={domId.partTwo} className="scroll-mt-24 space-y-6">

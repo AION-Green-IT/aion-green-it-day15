@@ -159,7 +159,7 @@ export const TASK3_FRAMING = {
   tag: "THE TASK",
   title: "Develop a management proposal",
   minutes: 20,
-  lead: "Two related tasks. Task 1: connect the six building blocks into one architecture. Task 2: write the core of the proposal — why it matters, the decision logic and the first move — using that architecture. The rest of the proposal is optional.",
+  lead: "Two related tasks. Task 1: connect the six building blocks into one architecture. Task 2: write the core of the proposal — why it matters, the decision logic and the first move — using that architecture.",
   instruction:
     "Do not hand management a list of nice ideas — hand them a decision architecture, including the one decision that must be made now despite incomplete information.",
   gradingLens: "Grading lens: a robust decision architecture, not a collection of ideas.",
