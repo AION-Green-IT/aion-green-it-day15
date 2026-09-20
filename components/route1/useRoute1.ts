@@ -15,6 +15,7 @@ import {
   RISK_FIELDS,
   STRUCTURE_QUESTIONS,
   checkPriority,
+  isCoreInitiative,
   optionById,
   resolveZone,
   type Check2Result,
@@ -40,6 +41,10 @@ export const domId = {
   initLens: (id: string) => `r1-init-${id}-lens`,
   initWhy: (id: string) => `r1-init-${id}-why`,
   closing: "r1-closing",
+  closingAll: "r1-closing-all",
+  /** Optional blocks — persisted open/closed ids. */
+  optMoreInitiatives: "r1-more-initiatives",
+  optLevel2: "r1-level-2",
 
   handover: "r1-handover",
   partTwo: "r1-part-two",
@@ -61,9 +66,12 @@ export type InitiativeState = {
   zone: ZoneId | null;
   lens: LensId | null;
   rationale: string;
+  /** One of the three initiatives everyone diagnoses. The other three are optional. */
+  core: boolean;
   checkCount: number;
   /** Both questions answered, so the card has resolved into a zone. */
   diagnosed: boolean;
+  /** Answered, and a rationale written. The lens is optional (C4 is an optional card). */
   complete: boolean;
 };
 
@@ -128,6 +136,7 @@ export function useRoute1() {
 
   const name = notes[R1.name] ?? "";
   const closing = (notes[R1.closing] ?? "").trim();
+  const closingAll = (notes[R1.closingAll] ?? "").trim();
 
   // -- Task 1 ----------------------------------------------------------------
   const cards: InitiativeState[] = INITIATIVES.map((initiative) => {
@@ -149,9 +158,10 @@ export function useRoute1() {
       zone: diagnosed ? resolveZone(load!, structure!) : null,
       lens,
       rationale,
+      core: isCoreInitiative(initiative.id),
       checkCount,
       diagnosed,
-      complete: diagnosed && !!lens && rationale.length > 0,
+      complete: diagnosed && rationale.length > 0,
     };
   });
 
@@ -160,7 +170,15 @@ export function useRoute1() {
   const undiagnosed = cards.filter((c) => !c.diagnosed);
   const diagnosedCount = cards.filter((c) => c.diagnosed).length;
   const completeCount = cards.filter((c) => c.complete).length;
-  const task1Complete = diagnosedCount === cards.length && cards.every((c) => c.complete) && !!closing;
+  const coreCards = cards.filter((c) => c.core);
+  const extraCards = cards.filter((c) => !c.core);
+  const coreDiagnosedCount = coreCards.filter((c) => c.diagnosed).length;
+  const coreCompleteCount = coreCards.filter((c) => c.complete).length;
+  /** The learner has started anything in the optional part of Part 1 — it then stays open. */
+  const extraTouched =
+    extraCards.some((c) => !!c.load || !!c.structure || !!c.lens || !!c.rationale) || closingAll.length > 0;
+  /** A lens is optional on every card; a card with one keeps its lens block open. */
+  const task1Complete = coreCards.every((c) => c.complete) && !!closing;
 
   // -- Task 2 ------------------------------------------------------------------
   const options: OptionAssessment[] = OPTION_LINES.map((opt) => {
@@ -186,6 +204,14 @@ export function useRoute1() {
   const risksFilledCount = risks.filter((r) => r.length > 0).length;
   const checkCount2 = Number(notes[R1.checkCount2] ?? "0") || 0;
 
+  /** The learner has started the optional Level 2 decision — it then stays open. */
+  const part2Touched =
+    options.some((o) => o.scoredCount > 0) ||
+    !!priority ||
+    justification.length > 0 ||
+    followUps.some((f) => f.length > 0) ||
+    risksFilledCount > 0;
+
   const task2Complete =
     allOptionsScored && !!priority && justification.length > 0 && followUps.every((f) => f.length > 0) && risksFilledCount === RISK_FIELDS.length;
 
@@ -196,7 +222,10 @@ export function useRoute1() {
   const missing: MissingItem[] = [];
   if (!name.trim()) missing.push({ id: domId.name, label: "Your name — needed to label the export" });
 
-  for (const c of cards) {
+  // Only the core task is ever required: three initiatives (both questions and a rationale)
+  // and the closing question. The lens, the other three initiatives and Level 2 are optional
+  // and never appear here, however far the learner gets with them.
+  for (const c of coreCards) {
     const who = `Initiative ${c.initiative.n} "${c.initiative.short}"`;
     if (!c.load) {
       missing.push({
@@ -210,9 +239,6 @@ export function useRoute1() {
         label: `${who} — the "${STRUCTURE_QUESTIONS[c.initiative.structureQuestion].label}" question is still unanswered`,
       });
     }
-    if (c.diagnosed && !c.lens) {
-      missing.push({ id: domId.initLens(c.initiative.id), label: `${who} — no lens assigned yet` });
-    }
     if (c.diagnosed && !c.rationale) {
       missing.push({ id: domId.initWhy(c.initiative.id), label: `${who} — no one-line rationale written yet` });
     }
@@ -221,37 +247,7 @@ export function useRoute1() {
   if (!closing) {
     missing.push({
       id: domId.closing,
-      label: "Closing question — which two initiatives are attractive now but structurally weak?",
-    });
-  }
-
-  for (const opt of options) {
-    const letter = optionById(opt.optionId).letter;
-    for (const dim of DIMENSIONS) {
-      if (!opt.scores[dim.id]) {
-        missing.push({
-          id: domId.optionScore(opt.optionId, dim.id),
-          label: `Option ${letter} — "${dim.name}" dimension not rated yet`,
-        });
-      }
-    }
-  }
-
-  if (!priority) {
-    missing.push({ id: domId.priority, label: "Priority pick — choose which line to prioritise first" });
-  }
-  if (!justification) {
-    missing.push({ id: domId.justification, label: "Justification — empty" });
-  }
-  followUps.forEach((f, i) => {
-    if (!f) {
-      missing.push({ id: domId.followUp(i), label: `${FOLLOWUP_FIELDS[i].label} — not written yet` });
-    }
-  });
-  if (risksFilledCount < RISK_FIELDS.length) {
-    missing.push({
-      id: domId.risks,
-      label: `Only ${risksFilledCount} of ${RISK_FIELDS.length} risks written`,
+      label: "Closing question — which of your three initiatives is attractive now but structurally weak?",
     });
   }
 
@@ -259,9 +255,17 @@ export function useRoute1() {
     hydrated,
     name,
     closing,
+    closingAll,
 
     // Task 1
     cards,
+    coreCards,
+    extraCards,
+    coreDiagnosedCount,
+    coreCompleteCount,
+    coreCount: coreCards.length,
+    extraTouched,
+    part2Touched,
     cardById,
     byZone,
     undiagnosed,

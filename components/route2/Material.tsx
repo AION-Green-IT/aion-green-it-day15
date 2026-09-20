@@ -3,7 +3,8 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { MicroCard } from "@/components/ui/MicroCard";
 import { MiniNav } from "@/components/ui/MiniNav";
-import { MATERIAL, MATERIAL_INTRO, MATERIAL_NAV, SECTION_ORDER, WORKED_EXAMPLE, materialAnchorId } from "@/lib/route2";
+import { OptionalBlock } from "@/components/ui/OptionalBlock";
+import { CORE_SECTIONS, MATERIAL, MATERIAL_INTRO, MATERIAL_NAV, OPTIONAL_SECTIONS, WORKED_EXAMPLE, materialAnchorId } from "@/lib/route2";
 import { ArchitecturePortfolio } from "./diagrams/ArchitecturePortfolio";
 import { CriteriaFunnel } from "./diagrams/CriteriaFunnel";
 import { GovernanceLab } from "./diagrams/GovernanceLab";
@@ -19,7 +20,7 @@ export const MATERIAL_TRACK_ID = "r2-material";
 export function Material() {
   const [d1, d2, d3, d4] = MATERIAL;
 
-  const navItems = SECTION_ORDER.map((id) => ({
+  const navItems = CORE_SECTIONS.map((id) => ({
     id,
     code: MATERIAL_NAV[id].code,
     label: MATERIAL_NAV[id].label,
@@ -32,20 +33,12 @@ export function Material() {
 
       <SectionHeading kicker={MATERIAL_INTRO.kicker} title={MATERIAL_INTRO.title} intro={MATERIAL_INTRO.intro} more={MATERIAL_INTRO.more} />
 
-      <MicroCard card={d1} total={MATERIAL.length} anchorId={materialAnchorId("architecture")}>
+      <MicroCard card={d1} position="Core 1 of 2" anchorId={materialAnchorId("architecture")}>
         <ArchitecturePortfolio />
       </MicroCard>
 
-      <MicroCard card={d2} total={MATERIAL.length} anchorId={materialAnchorId("assessmentLogic")}>
+      <MicroCard card={d2} position="Core 2 of 2" anchorId={materialAnchorId("assessmentLogic")}>
         <CriteriaFunnel />
-      </MicroCard>
-
-      <MicroCard card={d3} total={MATERIAL.length} anchorId={materialAnchorId("governance")}>
-        <GovernanceLab />
-      </MicroCard>
-
-      <MicroCard card={d4} total={MATERIAL.length} anchorId={materialAnchorId("horizons")}>
-        <HorizonPractice />
       </MicroCard>
 
       {/* Read-only worked example — visually distinct, a different company from the one Task 3 assesses. */}
@@ -68,6 +61,22 @@ export function Material() {
         <p className="mt-3 max-w-prose text-body text-paper/80">{WORKED_EXAMPLE.lesson}</p>
         <p className="mt-2 text-micro italic text-paper/60">{WORKED_EXAMPLE.note}</p>
       </div>
+
+      <OptionalBlock
+        id="r2-more-material"
+        title={MATERIAL_INTRO.optionalTitle}
+        hint={MATERIAL_INTRO.optionalHint}
+        minutes={OPTIONAL_SECTIONS.reduce((n, id) => n + MATERIAL.find((c) => c.id === id)!.minutes, 0)}
+        opensFor={OPTIONAL_SECTIONS.map(materialAnchorId)}
+      >
+        <MicroCard card={d3} position="Optional 1 of 2" anchorId={materialAnchorId("governance")}>
+          <GovernanceLab />
+        </MicroCard>
+
+        <MicroCard card={d4} position="Optional 2 of 2" anchorId={materialAnchorId("horizons")}>
+          <HorizonPractice />
+        </MicroCard>
+      </OptionalBlock>
     </div>
   );
 }

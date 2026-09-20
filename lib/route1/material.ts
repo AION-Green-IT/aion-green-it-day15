@@ -3,6 +3,8 @@
  * levels, read continuously before either task (CLAUDE.md §12: no material
  * between the parts).
  *
+ * Core = C1, C2, C3, C5 (15 min each, ~60 min); the rest are optional and self-paced (see sections.ts).
+ *
  * Visible per card: standfirst, live diagram, Definition. Behind Read more:
  * why it matters, the decision rules, the sources (DEPTH-UPGRADE-PROMPT §2.1).
  *
@@ -52,7 +54,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       { label: "ISO 14040 / ISO 14044 — life-cycle assessment", detail: "The standard method for counting a lifecycle", note: "not linked: ISO.org could not be opened by script" },
     ],
     moreHint: "why the rebound happens, decision rules, sources",
-    minutes: 2,
+    minutes: 15,
   },
   {
     id: "aiLoad",
@@ -79,7 +81,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       { label: "IEA — Electricity 2024", url: "https://www.iea.org/reports/electricity-2024", detail: "Data-centre demand ~460 TWh in 2022, potentially approaching ~1,000 TWh by 2026." },
     ],
     moreHint: "the IEA figures, decision rules, sources",
-    minutes: 3,
+    minutes: 15,
   },
   {
     id: "circular",
@@ -108,7 +110,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       { label: "Ellen MacArthur Foundation — circular economy", url: "https://www.ellenmacarthurfoundation.org/topics/circular-economy-introduction/overview", detail: "The R-strategies / circular economy framework." },
     ],
     moreHint: "the e-waste figures, the EU rules, decision rules, sources",
-    minutes: 3,
+    minutes: 15,
   },
   {
     id: "lenses",
@@ -157,7 +159,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
     ],
     sources: [{ label: COURSE_OWN, detail: "The two-signal verdict rule is this course's own decision rule, not an external standard." }],
     moreHint: "the right-way / wrong-way test, decision rules",
-    minutes: 3,
+    minutes: 15,
   },
   {
     id: "uncertainty",
@@ -258,8 +260,10 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
 ];
 
 export const MATERIAL_INTRO = {
-  kicker: "Material · nine cards · about 22 minutes",
-  title: "Nine ideas, then you use them — twice",
-  intro: "Read each definition, play with its diagram, then use the ideas on FutureGrid.",
-  more: "C1–C5 give you the diagnosis vocabulary for Task 1; C6–C9 step the perspective up — from reading individual initiatives to prioritising whole lines of measures under incomplete data — for Task 2. Everything either task expects is on this page. Open Read more on any card for the decision rules, the reasoning behind them and the sources.",
+  kicker: "Material · four core cards · about 60 minutes",
+  title: "Four ideas, then you use them",
+  intro: "Read each definition, play with its diagram, then diagnose three FutureGrid initiatives with them.",
+  more: "The four core cards cover everything the core task asks: the resource-load question (C2), the impact-or-novelty and circular-or-linear questions (C1, C3) and the verdict rule that turns your two answers into a zone (C5). Five more cards — the seven lenses, deciding under uncertainty, the seven dimensions, enabler versus point solution, and attractive-but-weak — sit behind the optional button below; they back the optional lens step and the optional Level 2 decision. Open Read more on any card for the decision rules, the reasoning behind them and the sources.",
+  optionalTitle: "More material — five extra cards",
+  optionalHint: "C4 the seven lenses · C6 deciding under uncertainty · C7 the seven dimensions · C8 enabler vs point solution · C9 attractive-but-weak. Needed only for the optional lens step and the optional Level 2 task.",
 } as const;

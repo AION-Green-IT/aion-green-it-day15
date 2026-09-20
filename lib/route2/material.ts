@@ -1,6 +1,7 @@
 /**
- * Route 2's material: four micro-cards, D1–D4, the whole teaching block for
- * Task 3, read in full before the builder starts. Visible per card: standfirst,
+ * Route 2's material: four micro-cards, D1–D4. The core is D1 and D2 (about 45
+ * minutes, Day 14's standard) — what the two core tasks use. D3 and D4 stay in full
+ * behind an optional button and back the optional extension of the proposal. Visible per card: standfirst,
  * live diagram, Definition. Behind Read more: why it matters, the decision
  * rules, the sources (DEPTH-UPGRADE-PROMPT §2.1).
  *
@@ -32,19 +33,19 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
     definition: [
       "A decision architecture is one integrated assessment framework that every initiative passes through before it scales. It is not one more project next to AI use, the innovation portfolio, the circular economy, investment logic, governance and management review — it is what connects them.",
       "It prevents a familiar failure: a pile of disconnected initiatives, each sensible alone, that add up to symbolic politics (a visible signal with little real effect) and rebound (an efficiency saving eaten by more usage) at portfolio scale.",
-      "In Task 3 those six blocks are on a canvas. You connect them so that no block stands on its own.",
+      "In Task 1 those six blocks are on a canvas. You connect them so that no block stands on its own.",
     ],
     insight: [
       "An AI pilot here and a take-back scheme there can each be defended in isolation. The problem only shows when they are compared: nobody has said which one deserves the compute, the budget or the attention first.",
       "The senior move is to build the logic once and route everything through it, before any individual technology is scaled.",
     ],
     reasoning: [
-      "When building the decision architecture in Task 3, treat every block as something that must connect to at least one other block. An unconnected block is exactly the scattered-initiative pattern this card warns against.",
+      "When building the decision architecture in Task 1, treat every block as something that must connect to at least one other block. An unconnected block is exactly the scattered-initiative pattern this card warns against.",
       "A framework that only routes AI initiatives, or only circular ones, is not integrated — it has to route the whole portfolio, so the connected blocks should form one architecture, not several separate clusters.",
     ],
     sources: [{ label: COURSE_OWN, detail: "The decision-architecture framing is this course's own, not an external standard." }],
     moreHint: "why it matters, decision rules",
-    minutes: 4,
+    minutes: 22,
   },
   {
     id: "assessmentLogic",
@@ -52,7 +53,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
     n: 2,
     icon: "funnel",
     title: "Assessment logic: how initiatives get judged",
-    standfirst: "The four criteria Task 3's decision logic must name — no fifth substitute allowed.",
+    standfirst: "The four criteria Task 2's decision logic must name — no fifth substitute allowed.",
     definition: [
       "A framework needs explicit criteria. Judge each initiative on four: benefit, resource and load effect, strategic viability, and controllability. Novelty and enthusiasm are not criteria.",
       "Benefit: the real, measured net effect, not the claim. Resource and load: the extra compute, energy, data and hardware it adds. Strategic viability: whether it can run at scale, hold up over time and be run by this organisation. Controllability: whether the organisation can steer and govern it once it is running.",
@@ -62,7 +63,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       "This is what turns \"interesting idea\" into \"prioritised decision\". It is also disclosable: the CSRD and its ESRS standards ask companies to report on governance, strategy and impacts — including climate (ESRS E1) and resource use and the circular economy (ESRS E5) — so an ad-hoc assessment process is itself a governance gap.",
     ],
     reasoning: [
-      "Task 3's element 3 (decision logic) must name all four criteria by these terms — benefit, resource/load, strategic viability, controllability — not a rebranded subset.",
+      "Task 2's element 3 (decision logic) must name all four criteria by these terms — benefit, resource/load, strategic viability, controllability — not a rebranded subset.",
       "Use resource/load when the question is what an initiative costs to run; use controllability when the question is who can change its rules once it is live. Strategic viability is about scale and staying power, not about how attractive it looks now.",
       "\"Novelty\" or \"how exciting it looks\" is explicitly not one of the four. If a criterion reduces to enthusiasm, it has failed this card's test.",
     ],
@@ -71,7 +72,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       { label: "ESRS, Delegated Regulation (EU) 2023/2772 — EUR-Lex", url: "https://eur-lex.europa.eu/eli/reg_del/2023/2772/oj", detail: "E1 climate change; E5 resource use and circular economy. Also being simplified." },
     ],
     moreHint: "why it matters, when to use each criterion, sources",
-    minutes: 4,
+    minutes: 23,
   },
   {
     id: "governance",
@@ -90,7 +91,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       "Under uncertainty the loop is what keeps a decision honest — the review stage is where the assumptions behind an early call are checked against real data.",
     ],
     reasoning: [
-      "Task 3's element 6 (roles, responsibilities, approval logic, review mechanisms) must cover all four loop stages — propose, assess, approve or park, review — not just \"who approves.\"",
+      "The optional element 6 (roles, responsibilities, approval logic, review mechanisms) must cover all four loop stages — propose, assess, approve or park, review — not just \"who approves.\"",
       "Standards to anchor investment and management-system rigour: ISO 50001 (energy management systems) for a review-and-improve loop, and ISO 20400 (sustainable procurement) where a decision ends in a purchase — cite the one that matches the initiative type rather than both by default.",
     ],
     sources: [
@@ -116,7 +117,7 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
       "A proposal whose measures all sit in one band is a warning. All short-term has no anchor; all medium-term has no first decision that could ship today; all structural has no concrete first step.",
     ],
     reasoning: [
-      "Every one of your own measures in Task 3 lands in exactly one of these three bands — never left unclassified. Ask what the measure produces: a decision (short), a pilot (medium), or a permanent place in how the organisation decides (structural).",
+      "Every one of your own measures in the optional classifier lands in exactly one of these three bands — never left unclassified. Ask what the measure produces: a decision (short), a pilot (medium), or a permanent place in how the organisation decides (structural).",
       "\"Build the framework first, then scale individual initiatives\" is the ordering rule across all three bands, not a one-off tip — a structural anchor with no short-term first step is exactly the disconnected-good-intentions failure D1 describes.",
     ],
     sources: [{ label: COURSE_OWN, detail: "The three horizons are this course's own working split, not an external standard." }],
@@ -126,10 +127,12 @@ export const MATERIAL: MicroCard<MaterialSectionId>[] = [
 ];
 
 export const MATERIAL_INTRO = {
-  kicker: "Material · four cards · about 15 minutes",
+  kicker: "Material · two core cards · about 45 minutes",
   title: "One decision architecture, not a list of ideas",
   intro: "Read each definition, play with its diagram, then build one for NovaCircular.",
-  more: "Four cards: why disconnected initiatives fail even when each one is sensible, the four criteria that turn enthusiasm into a prioritised decision, the governance loop that makes a decision durable, and the three time horizons a robust proposal has to cover. Everything Task 3 asks for is here — open Read more on a card for the decision rules and sources.",
+  more: "Two core cards: why disconnected initiatives fail even when each one is sensible (D1), and the four criteria that turn enthusiasm into a prioritised decision (D2) — followed by a worked example. Together they cover everything the two core tasks ask: the canvas (Task 1) and the core of the proposal (Task 2). Two more cards — the governance loop and the time horizons — sit behind the optional button below and back the optional extension of the proposal. Open Read more on a card for the decision rules and sources.",
+  optionalTitle: "More material — two extra cards",
+  optionalHint: "D3 governance and investment logic · D4 time horizons. Needed only for the optional extension of the proposal (elements 2, 4, 6, 7 and the horizon classifier).",
 } as const;
 
 /**

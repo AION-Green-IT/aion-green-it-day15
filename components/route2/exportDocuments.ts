@@ -26,6 +26,18 @@ export function buildProposalHtml(r2: Route2State): string {
     return `<tr><td class="nowrap">${esc(band.label)}</td><td>${list}</td><td class="nowrap">${inBand.length} of ${CANDIDATE_MEASURES.length}</td></tr>`;
   }).join("");
 
+  // Optional sections: present only if the learner did them, and labelled as such.
+  const anyHorizon = CANDIDATE_MEASURES.some((m) => r2.horizons[m.id]);
+  const optionalParts: string[] = [];
+  if (r2.guidingDecisions.some((g) => g)) optionalParts.push(`<h2>2. Three guiding decisions (optional)</h2><ol>${guidingRows}</ol>`);
+  if (r2.element4) optionalParts.push(`<h2>4. Central trade-offs (optional)</h2><p class="body-text">${esc(r2.element4)}</p>`);
+  if (r2.element6) optionalParts.push(`<h2>6. Roles, responsibilities, approval, review (optional)</h2><p class="body-text">${esc(r2.element6)}</p>`);
+  if (r2.element7) optionalParts.push(`<h2>7. The decision to take now (optional)</h2><p class="body-text">${esc(r2.element7)}</p>`);
+  if (anyHorizon) optionalParts.push(`<h2>Time-horizon split (optional)</h2><table><tbody>${horizonRows}</tbody></table>`);
+  const optionalHtml = optionalParts.length
+    ? optionalParts.join("\n  ")
+    : `<p class="body-text"><em>The optional extension of the proposal was not attempted.</em></p>`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -79,30 +91,17 @@ export function buildProposalHtml(r2: Route2State): string {
   <h2>1. Strategic relevance</h2>
   <p class="body-text">${esc(r2.element1) || "<em>Not written.</em>"}</p>
 
-  <h2>2. Three guiding decisions</h2>
-  <ol>${guidingRows}</ol>
-
   <h2>3. Decision logic</h2>
   <p class="body-text">${esc(r2.element3) || "<em>Not written.</em>"}</p>
-
-  <h2>4. Central trade-offs</h2>
-  <p class="body-text">${esc(r2.element4) || "<em>Not written.</em>"}</p>
 
   <h2>5. First prioritised line of measures + why</h2>
   <p class="body-text"><strong>${esc(firstMeasureLabel)}</strong></p>
   <p class="body-text">${esc(r2.element5Why) || "<em>Not written.</em>"}</p>
 
-  <h2>6. Roles, responsibilities, approval, review</h2>
-  <p class="body-text">${esc(r2.element6) || "<em>Not written.</em>"}</p>
-
-  <h2>7. The decision to take now</h2>
-  <p class="body-text">${esc(r2.element7) || "<em>Not written.</em>"}</p>
-
-  <h2>Time-horizon split</h2>
-  <table><tbody>${horizonRows}</tbody></table>
+  ${optionalHtml}
 
   <div class="summary">
-    <strong>${r2.connections.length} connections · ${6 - r2.orphanedBlocks.length} of 6 blocks connected · ${r2.groups.length} group${r2.groups.length === 1 ? "" : "s"} · ${6 - r2.unclassifiedMeasures.length} of 6 measures classified · checked ${r2.checkCount}×.</strong>
+    <strong>${r2.connections.length} connections · ${6 - r2.orphanedBlocks.length} of 6 blocks connected · ${r2.groups.length} group${r2.groups.length === 1 ? "" : "s"}${anyHorizon ? " · " + (6 - r2.unclassifiedMeasures.length) + " of 6 measures classified" : ""} · checked ${r2.checkCount}×.</strong>
   </div>
 
   <footer>

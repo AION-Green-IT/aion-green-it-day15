@@ -29,12 +29,12 @@ export function Task() {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-6">
           <div className="rounded-2xl border border-line bg-canvas p-5">
-            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Stage 1 — Build the decision architecture</p>
+            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Task 1 · about 10 minutes — Build the decision architecture</p>
             <Canvas />
           </div>
 
           <div className="rounded-2xl border border-line bg-paper p-5">
-            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Stage 2 — Write the proposal</p>
+            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Task 2 · about 10 minutes — Write the core of the proposal</p>
             <div className="mt-3">
               <ProposalBuilder />
             </div>
@@ -43,7 +43,7 @@ export function Task() {
 
         <LivePanel
           title={EXPORT.docHeading}
-          summary={`${6 - r2.orphanedBlocks.length}/6 blocks connected · ${r2.elementsComplete ? "proposal complete" : "proposal in progress"}`}
+          summary={`${6 - r2.orphanedBlocks.length}/6 blocks connected · ${r2.elementsComplete ? "core complete" : "core in progress"}`}
         >
           <ReportPanel />
         </LivePanel>

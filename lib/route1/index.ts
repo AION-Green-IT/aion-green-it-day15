@@ -45,6 +45,8 @@ export const R1 = {
   checkCount: (initiativeId: string) => `r1:t1:check:${initiativeId}`,
   /** The closing free-text question. */
   closing: "r1:t1:closing",
+  /** Optional closing question, for anyone who diagnoses all six. */
+  closingAll: "r1:t1:closing-all",
   /** Which of the seven lens chips in C4 have been opened — drives a soft nudge only. */
   lensesSeen: "r1:c4:lenses",
 
@@ -68,7 +70,7 @@ export const R1_KEY_PREFIXES = ["r1:t1:", "r1:t2:", "r1:c4:", "r1:c7:"];
 export const PAGE_INTRO = {
   tag: "ROUTE 1 — ASSESS & DECIDE",
   title: "Innovations for the Sustainable IT of Tomorrow",
-  body: "Module 11. New technology is not automatically sustainable technology: AI can cut energy and add compute at the same time, a circular model can be the right direction and still be hard to run, and an initiative can be genuinely exciting while reducing nothing at all. Nine short cards below give you the vocabulary and the decision rules. Then you use them twice on FutureGrid Technologies: first diagnosing six planned initiatives one by one, then stepping up to prioritise whole lines of measures under a limited budget and incomplete data.",
+  body: "Module 11. New technology is not automatically sustainable technology: AI can cut energy and add compute at the same time, a circular model can be the right direction and still be hard to run, and an initiative can be genuinely exciting while reducing nothing at all. Four core cards below give you the vocabulary and the decision rules. Then you use them on FutureGrid Technologies: diagnose three planned initiatives one by one. If you want more, five extra cards, three more initiatives and a Level 2 decision about whole lines of measures are there behind optional buttons.",
 } as const;
 
 /** Stated once, above the task, and never re-introduced mid-page. */
@@ -79,9 +81,9 @@ export const ENGAGEMENT = {
   brief:
     "FutureGrid Technologies is planning six innovation initiatives at once — AI, data services, procurement, hardware and a new customer offering. Management is enthusiastic about all of them, and no integrated way of judging them exists yet.",
   mandate:
-    "Part 1: assess, not approve — say which of the six initiatives are genuine sustainability opportunities, which are risks, and which are mixed. Part 2: step up a level — with only one line of measures fundable first, prioritise and defend a choice under incomplete data.",
+    "Core: assess, not approve — say which of three initiatives are genuine sustainability opportunities, which are risks, and which are mixed. Optional: diagnose the other three, then step up a level — with only one line of measures fundable first, prioritise and defend a choice under incomplete data.",
   deliverable:
-    "You leave with one document: a FutureGrid Technologies Innovation Diagnosis & Priority, covering the initiative-level diagnosis and the portfolio-level priority decision.",
+    "You leave with one document: a FutureGrid Technologies Innovation Diagnosis & Priority. It always holds the initiative-level diagnosis; anything optional you also complete is added to it.",
 } as const;
 
 export const NAME_FIELD = {

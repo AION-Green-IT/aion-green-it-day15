@@ -82,9 +82,17 @@ export function useRoute2() {
     horizons[m.id] = isHorizon(raw) ? raw : null;
   }
   const unclassifiedMeasures = CANDIDATE_MEASURES.filter((m) => !horizons[m.id]);
+  /** The learner has started the optional extension — it then stays open and appears in the report and export. */
+  const optionalTouched =
+    guidingDecisions.some((g) => g.length > 0) ||
+    !!element4 ||
+    !!element6 ||
+    !!element7 ||
+    CANDIDATE_MEASURES.some((m) => !!horizons[m.id]);
 
-  const elementsComplete =
-    !!element1 && guidingDecisions.every((g) => g.length > 0) && !!element3 && !!element4 && !!element5Why && !!element6 && !!element7;
+  // Core = elements 1, 3 and 5 (with the first-measure pick). Elements 2, 4, 6, 7 and the horizon
+  // classifier are optional: never required, and shown/checked/exported only once started.
+  const elementsComplete = !!element1 && !!element3 && !!element5Why;
 
   const checkCount = Number(notes[R2.checkCount] ?? "0") || 0;
   const lastCheck: Check3Result = checkProposal({
@@ -114,17 +122,8 @@ export function useRoute2() {
   }
   if (!firstMeasure) missing.push({ id: domId.firstMeasure, label: "First-measure not selected" });
   if (!element1) missing.push({ id: domId.element1, label: "Element 1 (strategic relevance) empty" });
-  guidingDecisions.forEach((g, i) => {
-    if (!g) missing.push({ id: domId.guiding(i), label: `Guiding decision ${i + 1} empty` });
-  });
   if (!element3) missing.push({ id: domId.element3, label: "Element 3 (decision logic) empty" });
-  if (!element4) missing.push({ id: domId.element4, label: "Element 4 (central trade-offs) empty" });
   if (!element5Why) missing.push({ id: domId.element5Why, label: "Element 5 (why this first) empty" });
-  if (!element6) missing.push({ id: domId.element6, label: "Element 6 (roles, responsibilities, approval, review) empty" });
-  if (!element7) missing.push({ id: domId.element7, label: "Element 7 (the decision to take now) empty" });
-  if (unclassifiedMeasures.length > 0) {
-    missing.push({ id: domId.horizonBoard, label: `${unclassifiedMeasures.length} measure${unclassifiedMeasures.length === 1 ? "" : "s"} unclassified` });
-  }
 
   return {
     hydrated,
@@ -151,6 +150,7 @@ export function useRoute2() {
     checkCount,
     lastCheck,
     elementsComplete,
+    optionalTouched,
 
     missing,
     allComplete: missing.length === 0,

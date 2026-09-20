@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { LivePanel } from "@/components/ui/LivePanel";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
 import { AnswerKeyNote } from "@/components/ui/AnswerKey";
+import { OptionalBlock } from "@/components/ui/OptionalBlock";
 import {
   CLOSING_FIELD,
   CONTEXT_CHIPS,
@@ -23,21 +24,23 @@ import { ReportPanel } from "./ReportPanel";
 import { useRoute1, domId } from "./useRoute1";
 
 /**
- * The whole task, one continuous scroll: Part 1 — Diagnose (Task 1) → an
- * inline handover → Part 2 — Decide (Task 2), with one report assembling
- * beside it (CLAUDE.md §12). No material sits between the parts — everything
- * either part needs was taught in the nine cards above this section.
+ * The core task is one small diagnosis: three initiatives, both questions and a
+ * rationale each, then one closing question (~15 minutes, Day 14's standard for a
+ * one-task route). Everything else is kept in full but optional and never required
+ * for export: the lens, the other three initiatives (inside the board) and Level 2 —
+ * the inline handover and the Decide task — behind one button. The core task only
+ * asks what the four core cards taught.
  */
 export function Task() {
   const r1 = useRoute1();
 
   return (
     <section id={domId.task} className="scroll-mt-24 space-y-6">
-      <SectionHeading kicker="THE TASK" title="FutureGrid Technologies — Diagnose, then Decide" />
+      <SectionHeading kicker="THE TASK" title="FutureGrid Technologies — Diagnose three initiatives" />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-8">
-          {/* Part 1 — Diagnose */}
+          {/* Core — diagnose three initiatives */}
           <div className="space-y-6">
             <SectionHeading
               kicker={`${TASK_FRAMING.tag} · about ${TASK_FRAMING.minutes} minutes`}
@@ -75,38 +78,46 @@ export function Task() {
             <ClosingQuestion />
           </div>
 
-          <Handover />
+          {/* Optional — Level 2, Decide */}
+          <OptionalBlock
+            id="r1-level-2"
+            title="Level 2 — decide which line of measures to prioritise"
+            hint="Assess three lines on seven dimensions, read the radar, pick one and defend it. Uses the optional cards C6–C9 and C7. Adds a Part 2 to your export."
+            minutes={TASK2_FRAMING.minutes}
+            openWhen={r1.part2Touched}
+          >
+            <Handover />
 
-          {/* Part 2 — Decide */}
-          <div id={domId.partTwo} className="scroll-mt-24 space-y-6">
-            <SectionHeading
-              kicker={`${TASK2_FRAMING.tag} · about ${TASK2_FRAMING.minutes} minutes`}
-              title={TASK2_FRAMING.title}
-            />
+            <div id={domId.partTwo} className="scroll-mt-24 space-y-6">
+              <SectionHeading
+                kicker={`OPTIONAL · ${TASK2_FRAMING.tag} · about ${TASK2_FRAMING.minutes} minutes`}
+                title={TASK2_FRAMING.title}
+              />
 
-            <div className="rounded-2xl border border-accent/30 bg-accentSoft/60 p-5">
-              <p className="text-body font-semibold text-ink">{TASK2_FRAMING.lead}</p>
-              <p className="mt-2 max-w-prose text-body text-ash">{TASK2_FRAMING.instruction}</p>
-            </div>
-
-            <div className="rounded-2xl border border-line bg-paper p-5">
-              <p className="text-micro font-semibold uppercase tracking-wide text-ash">General conditions</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {CONTEXT_CHIPS_L2.map((chip) => (
-                  <span key={chip} className="rounded-full border border-line bg-canvas px-2.5 py-1 text-micro text-ink">
-                    {chip}
-                  </span>
-                ))}
+              <div className="rounded-2xl border border-accent/30 bg-accentSoft/60 p-5">
+                <p className="text-body font-semibold text-ink">{TASK2_FRAMING.lead}</p>
+                <p className="mt-2 max-w-prose text-body text-ash">{TASK2_FRAMING.instruction}</p>
               </div>
-            </div>
 
-            <PartTwo />
-          </div>
+              <div className="rounded-2xl border border-line bg-paper p-5">
+                <p className="text-micro font-semibold uppercase tracking-wide text-ash">General conditions</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {CONTEXT_CHIPS_L2.map((chip) => (
+                    <span key={chip} className="rounded-full border border-line bg-canvas px-2.5 py-1 text-micro text-ink">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <PartTwo />
+            </div>
+          </OptionalBlock>
         </div>
 
         <LivePanel
           title={EXPORT.docHeading}
-          summary={`Part 1: ${r1.diagnosedCount}/${r1.totalCards} diagnosed · Part 2: ${r1.options.filter((o) => o.fullyScored).length}/3 assessed`}
+          summary={`Core: ${r1.coreCompleteCount}/${r1.coreCount} written up${r1.part2Touched ? ` · Level 2: ${r1.options.filter((o) => o.fullyScored).length}/3 assessed` : ""}`}
         >
           <ReportPanel />
         </LivePanel>
@@ -139,7 +150,7 @@ function ClosingQuestion() {
       <AnswerKeyNote
         label="Closing question"
         text={
-          "Initiatives 4 (device refresh on the classic market cycle) and 6 (the “AI everywhere” pilot) are the intended pair. Both are easy to sell internally — one because it is familiar and budget-friendly, the other because it looks innovative — and neither carries a measured net effect. A participant who names initiative 2 instead has a defensible case (its customer-side benefit is unmeasured too), and the counter is that initiative 2 at least rests on a platform the organisation can genuinely run, which is the maturity half of C5."
+          "Initiative 6 (the “AI everywhere” pilot) is the intended answer: it looks innovative and is easy to sell internally, but it adds continuous compute with no benefit target behind it — novelty-led, not impact-led (C1, C5). A participant who names initiative 1 has the same technology but the wrong reason: it was proposed on a measured saving, so it is impact-led and lands in Mixed, not Risk. A participant who names initiative 3 is confusing an untested-looking model with a weak one; it is circular and reduces net use, so it lands in Opportunity. If the participant also diagnoses the other three, the optional closing question asks for the pair (initiatives 4 and 6)."
         }
       />
     </div>

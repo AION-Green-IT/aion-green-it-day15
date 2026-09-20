@@ -51,6 +51,7 @@ export function ReportPanel() {
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-caption font-semibold text-ink">
                           {c.initiative.n}. {c.initiative.short}
+                          {!c.core && <span className="ml-1.5 text-micro font-normal text-ash">(optional)</span>}
                         </p>
                         <span
                           className={clsx(
@@ -98,8 +99,17 @@ export function ReportPanel() {
           )}
         </div>
 
+        {r1.closingAll && (
+          <div className="border-t border-line pt-3">
+            <p className="text-micro font-semibold uppercase tracking-wide text-ash">Across all six (optional)</p>
+            <p className="mt-1 text-caption italic text-ink">&ldquo;{r1.closingAll}&rdquo;</p>
+          </div>
+        )}
+
+        {r1.part2Touched ? (
+          <>
         <p className="border-t border-line pt-3 text-micro font-semibold uppercase tracking-wide text-accent">
-          Part 2 — Decide
+          Part 2 — Decide (optional)
         </p>
 
         {OPTION_LINES.map((opt) => {
@@ -146,6 +156,10 @@ export function ReportPanel() {
             Edit this entry
           </button>
         </div>
+          </>
+        ) : (
+          <p className="border-t border-line pt-3 text-micro italic text-ash">Optional Level 2 (Decide) — not started. Open it below the task if you want it in your export.</p>
+        )}
       </div>
     </div>
   );

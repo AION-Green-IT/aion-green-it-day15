@@ -76,6 +76,27 @@ export function buildEngagementHtml(r1: Route1State): string {
   const followUpRows = FOLLOWUP_FIELDS.map((f, i) => `<li>${esc(r1.followUps[i] || "—")}</li>`).join("");
   const riskRows = RISK_FIELDS.map((r, i) => `<li>${esc(r1.risks[i] || "—")}</li>`).join("");
 
+  const part2Html = r1.part2Touched
+    ? `  <h2>Part 2 — Decide (optional)</h2>
+  ${optionSections}
+
+  <h3>Priority pick</h3>
+  <p>${r1.priority ? `<strong>Line ${esc(optionById(r1.priority).letter)} — ${esc(optionById(r1.priority).title)}</strong>` : "<em>Not yet picked</em>"}</p>
+
+  <h3>Justification</h3>
+  <p>${r1.justification ? `&ldquo;${esc(r1.justification)}&rdquo;` : "<em>Not yet written</em>"}</p>
+
+  <h3>Follow-up decisions</h3>
+  <ol>${followUpRows}</ol>
+
+  <h3>Two risks of an attractive-but-weak pick</h3>
+  <ul class="plain">${riskRows}</ul>
+
+  <div class="summary">
+    <strong>${r1.options.filter((o) => o.fullyScored).length} of 3 lines fully assessed across all seven dimensions.</strong>
+  </div>`
+    : `<p class="muted">Optional Level 2 (Decide) was not attempted.</p>`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -134,32 +155,16 @@ export function buildEngagementHtml(r1: Route1State): string {
 
   <h3>Attractive now, structurally weak</h3>
   <div class="closing">&ldquo;${esc(r1.closing)}&rdquo;</div>
+  ${r1.closingAll ? '<h3>Across all six (optional)</h3><div class="closing">&ldquo;' + esc(r1.closingAll) + '&rdquo;</div>' : ""}
 
   <div class="summary">
-    <strong>${r1.completeCount} of ${r1.totalCards} initiatives fully written up — verdict, lens and rationale.</strong>
+    <strong>${r1.coreCompleteCount} of ${r1.coreCount} core initiatives written up — verdict and rationale${r1.diagnosedCount > r1.coreDiagnosedCount ? ", plus " + (r1.diagnosedCount - r1.coreDiagnosedCount) + " optional" : ""}.</strong>
   </div>
 
-  <h2>Part 2 — Decide</h2>
-  ${optionSections}
-
-  <h3>Priority pick</h3>
-  <p>${r1.priority ? `<strong>Line ${esc(optionById(r1.priority).letter)} — ${esc(optionById(r1.priority).title)}</strong>` : "<em>Not yet picked</em>"}</p>
-
-  <h3>Justification</h3>
-  <p>${r1.justification ? `&ldquo;${esc(r1.justification)}&rdquo;` : "<em>Not yet written</em>"}</p>
-
-  <h3>Follow-up decisions</h3>
-  <ol>${followUpRows}</ol>
-
-  <h3>Two risks of an attractive-but-weak pick</h3>
-  <ul class="plain">${riskRows}</ul>
-
-  <div class="summary">
-    <strong>${r1.options.filter((o) => o.fullyScored).length} of 3 lines fully assessed across all seven dimensions.</strong>
-  </div>
+  ${part2Html}
 
   <footer>
-    AION Green IT — Day ${CASE.day}, Route 1 (Assess &amp; Decide), Levels 1–2.
+    AION Green IT — Day ${CASE.day}, Route 1 (Assess &amp; Decide), Level 1${r1.part2Touched ? " with the optional Level 2" : ""}.
     ${esc(ENGAGEMENT.company)} is a fictional case for training use. Prepared by the learner named above.
   </footer>
 </div>

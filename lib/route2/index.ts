@@ -3,7 +3,7 @@
  *
  * Four micro-cards of material (ending in a read-only CircularMind worked
  * example), then one task — a two-stage builder: connect six blocks into a
- * decision architecture, then write the seven-element management proposal
+ * decision architecture, then write the core of the management proposal
  * beside a live-assembling document — then one export (CLAUDE.md §12).
  *
  * Everything that would otherwise be said twice lives here and only here: the
@@ -59,7 +59,7 @@ export const ENGAGEMENT = {
   mandate:
     "Build the decision architecture that channels every future AI, circular, or investment decision through the same criteria and governance — then turn it into a proposal management can act on, including the one decision that cannot wait for complete data.",
   deliverable:
-    "You leave with one document: a NovaCircular Technologies Management Proposal — a connected decision architecture plus all seven required proposal elements.",
+    "You leave with one document: a NovaCircular Technologies Management Proposal — a connected decision architecture plus the core of the proposal (why it matters, the decision logic and the first move). Anything optional you also complete is added to it.",
 } as const;
 
 export const NAME_FIELD = {

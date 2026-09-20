@@ -301,10 +301,20 @@ export const RATIONALE_FIELD = {
   material: ["novelty", "viability"] as MaterialSectionId[],
 };
 
+/** Core closing question — asked about the three core initiatives only. */
 export const CLOSING_FIELD = {
-  label: "Which two initiatives are attractive now but structurally weak, and why?",
+  label: "Which of your three initiatives is attractive now but structurally weak, and why?",
   instruction:
-    "Name both initiatives by title, then give the reason in one or two sentences — this is the attractive-versus-viable distinction applied to your own diagnosis.",
+    "Name it by title, then give the reason in one or two sentences — this is the attractive-versus-viable distinction applied to your own diagnosis.",
+  placeholder: "e.g. Initiative X reads as modern and is easy to sell internally, but…",
+  material: ["viability"] as MaterialSectionId[],
+};
+
+/** Optional closing question — the original two-initiative version, for anyone who diagnoses all six. */
+export const CLOSING_ALL_FIELD = {
+  label: "Across all six: which two initiatives are attractive now but structurally weak, and why?",
+  instruction:
+    "Only if you diagnosed all six. Name both initiatives by title, then give the reason in one or two sentences.",
   placeholder:
     "e.g. Initiative X and Initiative Y — both read as modern and are easy to sell internally, but neither…",
   material: ["viability"] as MaterialSectionId[],
@@ -343,6 +353,15 @@ export const GENERIC_FALLBACK_CLUE: ClueTier = {
   soft: "Re-read the initiative and separate what it promises from what it consumes — then check each answer against that split.",
   sharp: "Take the two sentences of the initiative one at a time. Each one contains a fact that decides one of your two answers; match fact to answer rather than judging the initiative as a whole.",
 };
+
+/**
+ * The three initiatives every learner diagnoses (~15 minutes, Day 14's standard for
+ * a one-task route). They cover all three zones and the sharpest pair: 1 (mixed —
+ * same technology as 6, proposed on a measured saving), 3 (opportunity) and 6 (risk).
+ * The other three stay in full, behind an optional block, and add to the same zones.
+ */
+export const CORE_INITIATIVE_IDS: string[] = ["i1", "i3", "i6"];
+export const isCoreInitiative = (id: string): boolean => CORE_INITIATIVE_IDS.includes(id);
 
 export const INITIATIVES: Initiative[] = [
   {
@@ -735,7 +754,7 @@ export const TASK_FRAMING = {
   tag: "THE TASK",
   title: "FutureGrid Technologies — Sustainable or just attractive?",
   minutes: 15,
-  lead: "FutureGrid Technologies is planning six innovation initiatives. Management is excited — but excitement is not an assessment.",
+  lead: "FutureGrid Technologies is planning six innovation initiatives. Management is excited — but excitement is not an assessment. You start with three of them.",
   instruction:
     "Your job is not to approve or reject. Your job is to see clearly: which initiatives are genuine sustainability opportunities, and which are only technologically attractive?",
 } as const;
@@ -751,11 +770,11 @@ export const CONTEXT_CHIPS: string[] = [
 ];
 
 export const WORK_ASSIGNMENT: string[] = [
-  "For each of the six initiatives, answer the two diagnostic questions. Your two answers together resolve the initiative into a zone — you do not pick the zone directly.",
-  "Assign the one lens that best captures why it lands where it does.",
+  "For each of the three initiatives, answer the two diagnostic questions. Your two answers together resolve the initiative into a zone — you do not pick the zone directly.",
   "Write a one-line rationale for each initiative, naming both the benefit and the burden.",
   "Use \"Check my reasoning\" whenever you want a clue — it tells you whether a diagnosis holds, never what the answer is.",
-  "Finish with the closing question: which two are attractive now but structurally weak?",
+  "Finish with the closing question: which one is attractive now but structurally weak?",
+  "Want more? Optional: name the lens for any initiative, diagnose the other three initiatives, or go on to Level 2 and decide which line of measures to prioritise.",
 ];
 
 export const CHECK_LABELS = {

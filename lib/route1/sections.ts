@@ -36,6 +36,17 @@ export const SECTION_ORDER: MaterialSectionId[] = [
   "attractiveWeak",
 ];
 
+/**
+ * The four cards every learner reads (~60 minutes, Day 14's standard). They are
+ * exactly the ones the core task draws on: Q1 (C2), Q2 impact/novelty (C1), Q2
+ * circular/linear (C3), the verdict rule and tested/untested (C5). The other five
+ * — lenses, uncertainty, dimensions, enabler, attractive-but-weak — stay in full,
+ * behind an optional block, and are what the optional lens and Level 2 work uses.
+ */
+export const CORE_SECTIONS: MaterialSectionId[] = ["novelty", "aiLoad", "circular", "viability"];
+export const OPTIONAL_SECTIONS: MaterialSectionId[] = SECTION_ORDER.filter((id) => !CORE_SECTIONS.includes(id));
+export const isCoreSection = (id: MaterialSectionId): boolean => CORE_SECTIONS.includes(id);
+
 /** DOM anchor a MaterialRefs chip or the mini-nav scrolls to. */
 export function materialAnchorId(id: MaterialSectionId): string {
   return `r1-card-${id}`;

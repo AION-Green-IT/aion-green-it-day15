@@ -7,15 +7,44 @@ intelligence and the circular economy) — the interactive working companion for
 Day 14 standard** (`../DEPTH-UPGRADE-PROMPT.md`). This day is bootstrapped from Day 14's codebase: its
 store shape, export mechanism, mentor tools and UI primitives are reused as-is.
 
+## Core and optional — Day 14's length, nothing deleted
+
+Day 14's standard, applied here: **Route 1 = four material cards (~60 min, 15 each) + one small task
+(~15 min). Route 2 = two material cards (~45 min) + two related tasks (~20 min).** Everything else that was
+built is kept in full behind a dashed **Optional** button (`components/ui/OptionalBlock.tsx`) that says what
+is inside and roughly how many minutes it adds. Nothing optional is ever required for export.
+
+| | Core (always shown, required) | Optional (kept in full, behind a button) |
+|---|---|---|
+| **Route 1 material** | C1 novelty · C2 AI load · C3 circular vs linear · C5 verdict rule — 4 × 15 = 60 min | C4 lenses · C6 uncertainty · C7 dimensions · C8 enabler · C9 attractive-but-weak (+11 min) |
+| **Route 1 task** | Diagnose **three** initiatives (1, 3, 6: one per zone, incl. the sharpest pair) — both questions + a rationale each — and one closing question (~15 min) | Name the lens · diagnose initiatives 2, 4, 5 · the original two-initiative closing question · the whole Level 2 Decide task with its handover (+25 min) |
+| **Route 2 material** | D1 architecture (22) · D2 criteria (23) + the CircularMind worked example — 45 min | D3 governance loop · D4 time horizons (+7 min) |
+| **Route 2 tasks** | Task 1: connect the six blocks into one architecture · Task 2: elements 1, 3 and 5 with the first-measure pick (~10 + 10 min) | Elements 2, 4, 6, 7 and the horizon classifier (+15 min) |
+
+**Material and task always match.** Every question or option in a core task is defined in a core card:
+Q1 → C2 · impact/novelty → C1 · circular/linear → C3 · zones and tested/untested → C5 · canvas → D1 ·
+element 3 → D2 · first measure → D1, D2 and the CircularMind example. The optional tasks use the optional
+cards (lens → C4; Level 2 → C6–C9 and C7; elements 6/7 and the classifier → D3/D4), so nothing required
+ever leans on something optional.
+
+**How optional behaves.** Closed by default; the open state persists across reloads. A block **stays open on
+its own once the learner has written anything in it**, so answers are never hidden. A `MaterialRefs` chip that
+points into an optional card opens the block, then the card's Read more, then scrolls. Optional work appears
+in the live report and the PDF only if it was done, labelled "(optional)"; the export filename contract is
+unchanged. Mentor fill still fills everything, core and optional, in one click.
+
+**Minutes.** Core minutes follow Day 14 (facilitator-led time, which includes discussing the interactive and
+the Read more). Optional cards keep their short self-paced times.
+
 ## What the depth upgrade changed
 
-**Material: short on screen, deep one tap away.** Each micro-card (Route 1's nine, C1–C9, ~22 min;
-Route 2's four, D1–D4, ~15 min) shows only a one-line standfirst, one live interactive and a short
+**Material: short on screen, deep one tap away.** Each micro-card (Route 1's nine, C1–C9;
+Route 2's four, D1–D4) shows only a one-line standfirst, one live interactive and a short
 **Definition**. Everything else — why it matters, the decision rules ("How to decide when this comes up
 in the task"), the sources — sits behind one collapsed **Read more** that says what is inside.
 `components/ui/ReadMore.tsx` is the disclosure; `components/ui/MicroCard.tsx` renders the card;
 `MicroCard` type in `lib/materialSection.ts` (`definition`, `insight`, `reasoning`, `sources`,
-`moreHint`). `minutes` counts the visible part only.
+`moreHint`). `minutes` is the facilitator-led time for the visible part (Read more is extra).
 
 **Every task chip opens the rules.** A `MaterialRefs` chip in a task fires `aion:open-readmore`, so the
 section it points at opens its Read more (where the rules live) before it scrolls and flashes.
@@ -41,8 +70,8 @@ is now self-contained (no pointer to a Route 1 card), so the "this route stands 
 
 | Route | Levels | Case | Material | Task | Export |
 |---|---|---|---|---|---|
-| `/route-1-assess-and-decide` | 1–2 | FutureGrid Technologies | C1–C9 micro-cards, ~22 min | Part 1 Diagnose (6 initiatives → zone, lens, rationale) → handover → Part 2 Decide (assess 3 lines on 7 dimensions, radar, priority pick + justification), ~30 min total | `1-{name}-day15-l1l2task1` PDF |
-| `/route-2-management-decision` | 3 | NovaCircular Technologies | D1–D4 micro-cards + CircularMind worked example, ~15 min | Connect 6 blocks into one architecture, then the 7-element management proposal, ~20 min | `1-{name}-day15-l3task1` PDF |
+| `/route-1-assess-and-decide` | 1 (+ optional 2) | FutureGrid Technologies | 4 core cards, ~60 min (+ 5 optional) | Diagnose 3 initiatives + closing question, ~15 min (+ optional lens, 3 more initiatives, Level 2 Decide) | `1-{name}-day15-l1l2task1` PDF |
+| `/route-2-management-decision` | 3 | NovaCircular Technologies | 2 core cards + CircularMind worked example, ~45 min (+ 2 optional) | Task 1 canvas + Task 2 proposal core (elements 1, 3, 5), ~20 min (+ optional extension) | `1-{name}-day15-l3task1` PDF |
 
 **Export naming.** The Level 2 build prompt named two exports (`…-l1task1`, `…-l2task1`). CLAUDE.md §12
 and Day 14 Route 1's precedent say one export per route, so Route 1 exports one PDF,
@@ -52,14 +81,14 @@ and Day 14 Route 1's precedent say one export per route, so Route 1 exports one 
 
 ```
 case brief + learner name (stated once)
-  → MATERIAL — micro-cards: standfirst · live interactive · Definition · [Read more]
+  → MATERIAL — core cards (standfirst · live interactive · Definition · [Read more]) + [Optional: more cards]
   → TASK
-       Route 1: Part 1 Diagnose → inline handover → Part 2 Decide
-       Route 2: Stage 1 canvas → Stage 2 proposal (document assembling beside it)
-  → ONE EXPORT
+       Route 1: diagnose 3 initiatives + closing  →  [Optional: lens · 3 more initiatives · handover → Level 2 Decide]
+       Route 2: Task 1 canvas → Task 2 proposal core  →  [Optional: elements 2, 4, 6, 7 · horizon classifier]
+  → ONE EXPORT (optional work is included only if done)
 ```
 
-## Route 1's material — nine cards
+## Route 1's material — nine cards (C1, C2, C3, C5 are core)
 
 | Card | Visible Definition defines | Interactive (all numbers derived from state) | Task it grounds |
 |---|---|---|---|
@@ -95,7 +124,10 @@ and flashes the priority field.
 
 **Checks** are ✓/✕ with a clue that sharpens from the second check; never the answer.
 
-## Route 2's material — four cards + a worked example
+**What is required now:** your name, both questions and a rationale on initiatives 1, 3 and 6, and the closing
+question. Lens, initiatives 2/4/5, the optional closing and all of Level 2 never appear in the missing list.
+
+## Route 2's material — four cards + a worked example (D1, D2 and the example are core)
 
 | Card | Visible Definition defines | Interactive | Task it grounds |
 |---|---|---|---|
@@ -122,10 +154,12 @@ keyboard-operable items.
 |---|---|
 | Decision architecture | The six blocks form one connected group |
 | Decision logic (element 3) | Names all four criteria (word-boundary matching; a stray "download" no longer counts as "load") |
-| Roles and governance (element 6) | Covers all four loop stages |
+| Roles and governance (optional element 6) | Covers all four loop stages |
 | First measure | "Framework" passes. "AI" or "circular" pass **only if** element 4 or 5 names how the missing criteria are handled meanwhile (criteria, framework, assess, govern, interim, alongside, trade-off …) |
-| Time horizons | All six classified **and** placements hold up. Reported as "k of 6 hold up" — never which one |
-| Complete proposal | Added only while an element is still empty, so "holds" can no longer appear on a near-empty page |
+| Time horizons (optional) | All six classified **and** placements hold up. Reported as "k of 6 hold up" — never which one |
+| Complete proposal | Added only while a **core** element (1, 3 or 5) is still empty, so "holds" can no longer appear on a near-empty page |
+| Roles and governance (optional element 6) | Checked only once element 6 has been started |
+| Time horizons (optional) | Checked only once at least one measure is classified |
 
 The stored verdict is keyed on every input it judged, so it disappears the moment any of them changes.
 
@@ -152,7 +186,7 @@ The stored verdict is keyed on every input it judged, so it disappears the momen
 ## Decisions made without asking (please re-check)
 
 1. **Zones are neutral** until Check runs (was green / red / grey).
-2. **Route 1 minutes** now sum to 22 (was 24 against a "~22" claim) because the visible part shrank.
+2. **Minutes follow Day 14, not the earlier micro-card timings:** core Route 1 = 60, Route 2 = 45.
 3. **ESRS**: D2 previously said "ESRS E1 … resource impact". E1 is climate change; **E5** is resource use
    and the circular economy. The text now names both. Re-check before teaching.
 4. **Route 2 no longer mentions Route 1 cards** (C1, C9, C6); rebound and symbolic politics are defined

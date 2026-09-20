@@ -17,9 +17,13 @@ export function MaterialRefs({ refs, lead = "Based on" }: { refs: MaterialRef[];
   if (refs.length === 0) return null;
 
   const go = (anchorId: string) => {
-    window.dispatchEvent(new CustomEvent(OPEN_READMORE_EVENT, { detail: anchorId }));
-    // Let the panel open first, so the flash lands on the section at its final height.
-    window.setTimeout(() => scrollToAndFlash(anchorId, "ref"), 50);
+    const open = () => window.dispatchEvent(new CustomEvent(OPEN_READMORE_EVENT, { detail: anchorId }));
+    // An optional block opens first; the Read more inside it only exists once it has
+    // mounted, so the event is sent a second time after that.
+    open();
+    window.setTimeout(open, 80);
+    // Let both panels open, so the flash lands on the section at its final height.
+    window.setTimeout(() => scrollToAndFlash(anchorId, "ref"), 160);
   };
 
   return (

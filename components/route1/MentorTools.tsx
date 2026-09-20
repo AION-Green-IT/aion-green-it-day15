@@ -47,7 +47,12 @@ export function MentorTools() {
 
     setNote(
       R1.closing,
-      "Initiative 4 (device refresh on the classic market cycle) and initiative 6 (the “AI everywhere” pilot). Both are easy to sell — one is familiar and simple to budget, the other looks innovative — but neither reduces anything measurably: the refresh cycle discards serviceable hardware and pulls in fresh embodied footprint, and the pilot adds continuous compute with no benefit target anywhere behind it.",
+      "Initiative 6, the “AI everywhere” pilot. It looks innovative and is easy to sell internally, but it adds continuous compute with no benefit target anywhere behind it — novelty-led, not impact-led.",
+    );
+
+    setNote(
+      R1.closingAll,
+      "Initiatives 4 and 6 — the device refresh and the “AI everywhere” pilot. Both are easy to sell internally and neither carries a measured net effect.",
     );
 
     for (const lens of LENSES) markSeen(R1.lensesSeen, lens.id);

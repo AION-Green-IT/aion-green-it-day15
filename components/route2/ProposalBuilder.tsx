@@ -9,6 +9,7 @@ import { AnswerKey } from "@/components/ui/AnswerKey";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
 import { ReadMore } from "@/components/ui/ReadMore";
+import { OptionalBlock } from "@/components/ui/OptionalBlock";
 import { DragHandle } from "@/components/icons/LineIcons";
 import {
   ANSWER_KEY_HORIZONS,
@@ -92,28 +93,6 @@ export function ProposalBuilder() {
         />
       </div>
 
-      <div>
-        <p className="text-caption font-semibold text-ink">{GUIDING_DECISIONS_LABEL}</p>
-        <MaterialRefs refs={materialRefs(["governance", "horizons"])} />
-        <div className="mt-1.5 grid gap-3 sm:grid-cols-3">
-          {GUIDING_DECISION_FIELDS.map((f, i) => (
-            <div key={f.id} id={domId.guiding(i)} className="scroll-mt-24">
-              <label htmlFor={`r2-guiding-input-${i}`} className="block text-micro font-semibold text-ash">
-                {f.label}
-              </label>
-              <p className="mt-0.5 text-micro text-ash">{f.instruction}</p>
-              <input
-                id={`r2-guiding-input-${i}`}
-                type="text"
-                value={r2.guidingDecisions[i]}
-                onChange={(e) => setNote(R2.guidingDecision(i), e.target.value)}
-                className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-caption text-ink"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div id={domId.element3} className="scroll-mt-24">
         <label htmlFor="r2-element3-field" className="block text-caption font-semibold text-ink">
           {ELEMENT_3.label}
@@ -135,22 +114,6 @@ export function ProposalBuilder() {
           value={r2.element3}
           onChange={(e) => setNote(R2.element3, e.target.value)}
           placeholder={ELEMENT_3.placeholder}
-          rows={3}
-          className="mt-1.5 w-full rounded-xl border border-line bg-paper px-3 py-2 text-caption text-ink"
-        />
-      </div>
-
-      <div id={domId.element4} className="scroll-mt-24">
-        <label htmlFor="r2-element4-field" className="block text-caption font-semibold text-ink">
-          {ELEMENT_4.label}
-        </label>
-        <p className="mt-0.5 text-micro text-ash">{ELEMENT_4.instruction}</p>
-        <MaterialRefs refs={materialRefs(ELEMENT_4.material)} />
-        <textarea
-          id="r2-element4-field"
-          value={r2.element4}
-          onChange={(e) => setNote(R2.element4, e.target.value)}
-          placeholder={ELEMENT_4.placeholder}
           rows={3}
           className="mt-1.5 w-full rounded-xl border border-line bg-paper px-3 py-2 text-caption text-ink"
         />
@@ -207,6 +170,52 @@ export function ProposalBuilder() {
         </div>
       </div>
 
+      {/* Optional — the rest of the seven-element proposal and the horizon classifier, kept in full */}
+      <OptionalBlock
+        id="r2-extend"
+        title="Extend your proposal"
+        hint="Elements 2 (three guiding decisions), 4 (central trade-offs), 6 (roles and governance), 7 (the decision to take now) and the time-horizon classifier. Uses the optional cards D3 and D4. Anything you write is added to your export."
+        minutes={15}
+        openWhen={r2.optionalTouched}
+      >
+      <div>
+        <p className="text-caption font-semibold text-ink">{GUIDING_DECISIONS_LABEL}</p>
+        <MaterialRefs refs={materialRefs(["governance", "horizons"])} />
+        <div className="mt-1.5 grid gap-3 sm:grid-cols-3">
+          {GUIDING_DECISION_FIELDS.map((f, i) => (
+            <div key={f.id} id={domId.guiding(i)} className="scroll-mt-24">
+              <label htmlFor={`r2-guiding-input-${i}`} className="block text-micro font-semibold text-ash">
+                {f.label}
+              </label>
+              <p className="mt-0.5 text-micro text-ash">{f.instruction}</p>
+              <input
+                id={`r2-guiding-input-${i}`}
+                type="text"
+                value={r2.guidingDecisions[i]}
+                onChange={(e) => setNote(R2.guidingDecision(i), e.target.value)}
+                className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-caption text-ink"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div id={domId.element4} className="scroll-mt-24">
+        <label htmlFor="r2-element4-field" className="block text-caption font-semibold text-ink">
+          {ELEMENT_4.label}
+        </label>
+        <p className="mt-0.5 text-micro text-ash">{ELEMENT_4.instruction}</p>
+        <MaterialRefs refs={materialRefs(ELEMENT_4.material)} />
+        <textarea
+          id="r2-element4-field"
+          value={r2.element4}
+          onChange={(e) => setNote(R2.element4, e.target.value)}
+          placeholder={ELEMENT_4.placeholder}
+          rows={3}
+          className="mt-1.5 w-full rounded-xl border border-line bg-paper px-3 py-2 text-caption text-ink"
+        />
+      </div>
+
       <div id={domId.element6} className="scroll-mt-24">
         <label htmlFor="r2-element6-field" className="block text-caption font-semibold text-ink">
           {ELEMENT_6.label}
@@ -249,7 +258,8 @@ export function ProposalBuilder() {
         />
       </div>
 
-      <HorizonClassifier />
+        <HorizonClassifier />
+      </OptionalBlock>
 
       {/* Check my proposal — never names the model recommendation */}
       <div className="space-y-1.5 rounded-lg border border-line bg-canvas p-3">

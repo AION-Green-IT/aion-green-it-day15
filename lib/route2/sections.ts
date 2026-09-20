@@ -8,6 +8,18 @@ export type MaterialSectionId = "architecture" | "assessmentLogic" | "governance
 
 export const SECTION_ORDER: MaterialSectionId[] = ["architecture", "assessmentLogic", "governance", "horizons"];
 
+/**
+ * The two cards every learner reads (~45 minutes, Day 14's standard for a two-card
+ * route): the decision architecture (D1) and the four assessment criteria (D2), plus
+ * the read-only CircularMind example. They are exactly what the two core tasks use —
+ * the canvas (D1), and elements 1, 3 and 5 of the proposal (D1, D2). The governance
+ * loop (D3) and the time horizons (D4) stay in full behind an optional button; they
+ * back the optional extension of the proposal (elements 2, 4, 6, 7 and the horizon
+ * classifier).
+ */
+export const CORE_SECTIONS: MaterialSectionId[] = ["architecture", "assessmentLogic"];
+export const OPTIONAL_SECTIONS: MaterialSectionId[] = SECTION_ORDER.filter((id) => !CORE_SECTIONS.includes(id));
+
 /** DOM anchor a MaterialRefs chip or the mini-nav scrolls to. */
 export function materialAnchorId(id: MaterialSectionId): string {
   return `r2-card-${id}`;

@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { useProgress } from "@/lib/store";
+import { useHydrated, useProgress } from "@/lib/store";
 import { createPlacementHistory, type PlacementMap } from "@/lib/usePlacementHistory";
 import { undoRedoKeyHandler } from "@/lib/undoShortcuts";
 import { AnswerKey } from "@/components/ui/AnswerKey";
 import { UndoRedoControls } from "@/components/ui/UndoRedoControls";
 import { MaterialRefs } from "@/components/ui/MaterialRefs";
 import { ReadMore } from "@/components/ui/ReadMore";
+import { OptionalBlock } from "@/components/ui/OptionalBlock";
 import { Icon } from "@/components/icons/LineIcons";
 import {
   CHECK_LABELS,
+  CLOSING_ALL_FIELD,
   LENSES,
   LENS_FIELD,
   LOAD_FIELD,
@@ -132,8 +134,9 @@ export function DiagnosisBoard() {
       <div className="rounded-2xl border border-line bg-paper p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-micro text-ash">
-            <span className="font-semibold tabular-nums text-ink">{r1.diagnosedCount}</span> of {r1.totalCards} diagnosed ·{" "}
-            <span className="font-semibold tabular-nums text-ink">{r1.completeCount}</span> of {r1.totalCards} fully written up
+            <span className="font-semibold tabular-nums text-ink">{r1.coreDiagnosedCount}</span> of {r1.coreCount} diagnosed ·{" "}
+            <span className="font-semibold tabular-nums text-ink">{r1.coreCompleteCount}</span> of {r1.coreCount} written up
+            {r1.diagnosedCount > r1.coreDiagnosedCount ? ` · plus ${r1.diagnosedCount - r1.coreDiagnosedCount} optional` : ""}
           </p>
           <UndoRedoControls
             onUndo={handleUndo}
@@ -174,33 +177,63 @@ export function DiagnosisBoard() {
         </div>
       </div>
 
-      {/* Not yet diagnosed */}
+      {/* Not yet diagnosed — the core three */}
       <div className="rounded-2xl border border-dashed border-line bg-canvas p-4">
         <p className="text-micro font-semibold uppercase tracking-wide text-ash">
-          Not yet diagnosed — {r1.undiagnosed.length} of {r1.totalCards}
+          Not yet diagnosed — {r1.coreCards.filter((c) => !c.diagnosed).length} of {r1.coreCount}
         </p>
         <p className="mt-0.5 text-micro text-ash">
           Answer both questions on a card and it resolves itself into one of the three zones below. You are not choosing
           the zone — your two answers decide it.
         </p>
-        {r1.undiagnosed.length === 0 ? (
+        {r1.coreCards.every((c) => c.diagnosed) ? (
           <p className="mt-2 text-caption text-ash">
-            All six are diagnosed and sitting in the zones below. Change any answer there and the card moves.
+            All three are diagnosed and sitting in the zones below. Change any answer there and the card moves.
           </p>
         ) : (
           <div className="mt-3 space-y-3">
-            {r1.undiagnosed.map((c) => (
-              <InitiativeCard
-                key={c.initiative.id}
-                card={c}
-                result={resultFor(c)}
-                onAnswer={answer}
-                onRationale={(v) => setNote(R1.rationale(c.initiative.id), v)}
-              />
-            ))}
+            {r1.coreCards
+              .filter((c) => !c.diagnosed)
+              .map((c) => (
+                <InitiativeCard
+                  key={c.initiative.id}
+                  card={c}
+                  result={resultFor(c)}
+                  onAnswer={answer}
+                  onRationale={(v) => setNote(R1.rationale(c.initiative.id), v)}
+                />
+              ))}
           </div>
         )}
       </div>
+
+      {/* Optional — the other three initiatives, same questions, same zones */}
+      <OptionalBlock
+        id={domId.optMoreInitiatives}
+        title="Diagnose the other three initiatives"
+        hint="The same two questions on initiatives 2, 4 and 5. They land in the same zones below and are added to your export."
+        minutes={10}
+        openWhen={r1.extraTouched}
+      >
+        {r1.extraCards.filter((c) => !c.diagnosed).length === 0 ? (
+          <p className="text-caption text-ash">All three optional initiatives are diagnosed and sitting in the zones below.</p>
+        ) : (
+          <div className="space-y-3">
+            {r1.extraCards
+              .filter((c) => !c.diagnosed)
+              .map((c) => (
+                <InitiativeCard
+                  key={c.initiative.id}
+                  card={c}
+                  result={resultFor(c)}
+                  onAnswer={answer}
+                  onRationale={(v) => setNote(R1.rationale(c.initiative.id), v)}
+                />
+              ))}
+          </div>
+        )}
+        <OptionalClosing />
+      </OptionalBlock>
 
       {/* The three zones */}
       <div className="space-y-4">
@@ -278,14 +311,17 @@ function InitiativeCard({
   const tone = card.zone ? zoneTone(card.zone) : null;
 
   const refs: MaterialSectionId[] = Array.from(
-    new Set<MaterialSectionId>([...LOAD_FIELD.material, ...structureQ.material, ...LENS_FIELD.material]),
+    new Set<MaterialSectionId>([...LOAD_FIELD.material, ...structureQ.material]),
   );
 
   return (
     <div id={domId.init(initiative.id)} className="scroll-mt-24 rounded-xl border border-line bg-paper p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-micro font-semibold uppercase tracking-wide text-ash">Initiative {initiative.n}</p>
+          <p className="text-micro font-semibold uppercase tracking-wide text-ash">
+            Initiative {initiative.n}
+            {!card.core && <span className="ml-2 rounded-full border border-line px-2 py-0.5 text-micro font-normal normal-case text-ash">optional</span>}
+          </p>
           <h4 className="text-h3 text-ink">{initiative.title}</h4>
         </div>
         {zone && tone && (
@@ -363,10 +399,18 @@ function InitiativeCard({
 
       {card.diagnosed && (
         <>
-          {/* The lens */}
-          <div id={domId.initLens(initiative.id)} className="mt-4 scroll-mt-24 border-t border-line pt-3">
+          {/* The lens — optional (it needs C4, an optional card) */}
+          <OptionalBlock
+            id={`r1-lens-${initiative.id}`}
+            title="Name the lens"
+            hint="Which of the seven lenses names the decisive issue? Uses optional card C4. Added to your export if you do."
+            openWhen={!!card.lens}
+            className="mt-4"
+          >
+          <div id={domId.initLens(initiative.id)} className="scroll-mt-24">
             <p className="text-caption font-semibold text-ink">{LENS_FIELD.label}</p>
             <p className="mt-0.5 text-micro text-ash">{LENS_FIELD.instruction}</p>
+            <MaterialRefs refs={materialRefs(LENS_FIELD.material)} />
             <ReadMore className="mt-1.5" label="Lens key" hint="what each lens asks and when to use it">
               <ul className="space-y-1.5">
                 {LENSES.map((lens) => (
@@ -399,6 +443,8 @@ function InitiativeCard({
               })}
             </div>
           </div>
+
+          </OptionalBlock>
 
           {/* The rationale */}
           <div id={domId.initWhy(initiative.id)} className="mt-3 scroll-mt-24">
@@ -455,5 +501,29 @@ function OptionChip({ label, on, onClick }: { label: string; on: boolean; onClic
     >
       {label}
     </button>
+  );
+}
+
+/** Optional closing question for anyone who diagnoses all six — the original two-initiative version. */
+function OptionalClosing() {
+  const hydrated = useHydrated();
+  const setNote = useProgress((s) => s.setNote);
+  const value = useProgress((s) => s.notes[R1.closingAll] ?? "");
+  return (
+    <div id={domId.closingAll} className="scroll-mt-24 rounded-2xl border border-line bg-paper p-5">
+      <label htmlFor="r1-closing-all-field" className="block text-caption font-semibold text-ink">
+        {CLOSING_ALL_FIELD.label}
+      </label>
+      <p className="mt-0.5 text-micro text-ash">{CLOSING_ALL_FIELD.instruction}</p>
+      <MaterialRefs refs={materialRefs(CLOSING_ALL_FIELD.material)} />
+      <textarea
+        id="r1-closing-all-field"
+        value={hydrated ? value : ""}
+        onChange={(e) => setNote(R1.closingAll, e.target.value)}
+        placeholder={CLOSING_ALL_FIELD.placeholder}
+        rows={3}
+        className="mt-2 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-caption text-ink"
+      />
+    </div>
   );
 }

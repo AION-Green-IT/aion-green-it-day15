@@ -1,6 +1,8 @@
 /**
- * Task 3 — "Develop a management proposal", ~20 minutes, Level 3, at
- * NovaCircular Technologies. A two-stage builder: Stage 1 connects six
+ * Route 2's task — "Develop a management proposal", ~20 minutes, Level 3, at
+ * NovaCircular Technologies. Core: two related tasks — (1) the canvas and (2) elements
+ * 1, 3 and 5 with the first-measure pick. Optional: elements 2, 4, 6, 7 and the horizon
+ * classifier, kept in full. A two-stage builder: Stage 1 connects six
  * building blocks into a decision architecture (never a plain list — the
  * connections are what prove it routes as one framework, D1); Stage 2 is the
  * guided seven-element proposal, assembling as a live document beside it.
@@ -108,7 +110,7 @@ export const ELEMENT_5_WHY = {
   label: "5. Why this first",
   instruction: "Justify the first-measure pick above — this is element 5 in full: the line of measures plus why.",
   placeholder: "e.g. Framework first because…",
-  material: ["architecture", "governance"] as MaterialSectionId[],
+  material: ["architecture", "assessmentLogic"] as MaterialSectionId[],
 };
 
 export const ELEMENT_6 = {
@@ -157,7 +159,7 @@ export const TASK3_FRAMING = {
   tag: "THE TASK",
   title: "Develop a management proposal",
   minutes: 20,
-  lead: "Two stages: connect the six building blocks into one architecture, then write the seven-element proposal beside the document that assembles as you go.",
+  lead: "Two related tasks. Task 1: connect the six building blocks into one architecture. Task 2: write the core of the proposal — why it matters, the decision logic and the first move — using that architecture. The rest of the proposal is optional.",
   instruction:
     "Do not hand management a list of nice ideas — hand them a decision architecture, including the one decision that must be made now despite incomplete information.",
   gradingLens: "Grading lens: a robust decision architecture, not a collection of ideas.",
@@ -295,19 +297,21 @@ export function checkProposal(args: {
       : undefined,
   });
 
-  // 3. Governance: all four loop stages
+  // 3. Governance (optional): all four loop stages — only checked once element 6 has been started
   const missingS = missingStage(args.element6);
-  rows.push({
-    area: "governance",
-    label: "Roles and governance (element 6)",
-    ok: !missingS,
-    clue: missingS
-      ? pick(
-          `Element 6 doesn't cover the ${missingS} stage — the loop in D3 has four stages, not only "who approves".`,
-          `Without ${missingS}, the loop is broken (D3): say who does it and what question they ask.`,
-        )
-      : undefined,
-  });
+  if (args.element6.trim()) {
+    rows.push({
+      area: "governance",
+      label: "Roles and governance (optional element 6)",
+      ok: !missingS,
+      clue: missingS
+        ? pick(
+            `Element 6 doesn't cover the ${missingS} stage — the loop in D3 has four stages, not only "who approves".`,
+            `Without ${missingS}, the loop is broken (D3): say who does it and what question they ask.`,
+          )
+        : undefined,
+    });
+  }
 
   // 4. First measure: framework passes; AI or circular passes only with the objection pre-empted
   let fmOk = false;
@@ -341,11 +345,12 @@ export function checkProposal(args: {
       );
     }
   }
-  rows.push({ area: "horizon", label: "Time horizons", ok: hOk, clue: hClue });
+  // Optional: only checked once at least one measure has been classified
+  if (classified.length > 0) rows.push({ area: "horizon", label: "Time horizons (optional)", ok: hOk, clue: hClue });
 
   // 6. Nothing to judge on empty elements
   if (!args.elementsComplete) {
-    rows.push({ area: "complete", label: "Complete proposal", ok: false, clue: "Some elements are still empty — the list at the bottom names them." });
+    rows.push({ area: "complete", label: "Complete proposal", ok: false, clue: "A core element is still empty — the list at the bottom names it." });
   }
 
   return { holds: rows.every((r) => r.ok), tier, rows };
@@ -386,7 +391,7 @@ export const SAMPLE_ELEMENT_7 =
 export const SAMPLE_HORIZONS: Record<string, Horizon> = HORIZON_EXPECTED;
 
 export const ANSWER_KEY_L3: AnswerKeyBlock = {
-  prompt: "Task 3 — First-measure selector",
+  prompt: "Task 2 — First-measure selector",
   items: [
     {
       option: "Build the assessment framework first (expected)",
@@ -410,7 +415,7 @@ export const ANSWER_KEY_L3: AnswerKeyBlock = {
 
 /** Stage 1 — the canvas has no single right drawing, so the key states what the check accepts and rejects. */
 export const ANSWER_KEY_CANVAS: AnswerKeyBlock = {
-  prompt: "Stage 1 — the decision-architecture canvas",
+  prompt: "Task 1 — the decision-architecture canvas",
   items: [
     {
       option: "One connected group (accepted)",
@@ -434,7 +439,7 @@ export const ANSWER_KEY_CANVAS: AnswerKeyBlock = {
 
 /** Stage 2 — the horizon classifier: expected band per measure, with a reason for each. */
 export const ANSWER_KEY_HORIZONS: AnswerKeyBlock = {
-  prompt: "Stage 2 — time-horizon classifier",
+  prompt: "Optional — time-horizon classifier",
   items: [
     { option: "Define the four assessment criteria and publish them — Short-term (expected)", verdict: "pick", why: "A decision, not a deployment: the criteria can be agreed and published now, and everything else depends on them." },
     { option: "Publish a first prioritisation of the three initiatives already in flight — Short-term (expected)", verdict: "pick", why: "A first prioritisation is a decision and a piece of transparency. It uses the criteria on initiatives that already exist; nothing is built." },

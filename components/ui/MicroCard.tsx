@@ -16,14 +16,14 @@ import { GlossedText } from "@/components/ui/GlossedText";
 export function MicroCard({
   card,
   anchorId,
-  total,
+  position,
   children,
 }: {
   card: MicroCardData;
   /** DOM id the mini-nav and MaterialRefs chips scroll to. */
   anchorId: string;
-  /** How many cards this route has — never hard-coded. */
-  total: number;
+  /** Where the card sits in its group, e.g. "Core 2 of 4" or "Optional 1 of 5" — never hard-coded. */
+  position: string;
   /** The card's live diagram and its micro-interaction. */
   children: React.ReactNode;
 }) {
@@ -38,7 +38,7 @@ export function MicroCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <p className="text-micro font-semibold uppercase tracking-wide text-accent">
-                {card.code} · Card {card.n} of {total}
+                {card.code} · {position}
               </p>
               <span className="rounded-full border border-line px-2 py-0.5 text-micro text-ash">~{card.minutes} min</span>
             </div>
